@@ -1,6 +1,10 @@
 // User configuration
-export const PROFILE = "SitcomReality"; // Replace with the actual target username
-export const PROFILE_USERNAME = PROFILE; // Keep backwards compatibility
+export const PROFILE = "SitcomReality"; // Replace with the actual username
+export const PROFILE_USERNAME = {
+    username: "SitcomReality",
+    description: "Face of the farce",
+    avatar_url: "SITCOMREALITYLOGO.jpg"  
+};
 
 // Add API timeout constant
 export const API_TIMEOUT = 5000; // 5 seconds
@@ -8,7 +12,7 @@ export const API_TIMEOUT = 5000; // 5 seconds
 // --- Aesthetics ---
 
 // Background Canvas Configuration
-export const BACKGROUND_COLOR = 0x110020; // Dark blue-black mix
+export const BACKGROUND_COLOR = 0xf0e4f2; // A soft, slightly surreal pale lavender/pink
 
 // Colors for the 3D objects in the background
 export const OBJECT_COLORS = [
