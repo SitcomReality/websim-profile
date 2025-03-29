@@ -36,7 +36,7 @@ async function generateAiText() {
         aiPromptEl.textContent = `AI Prompt: "${userPrompt}"`; 
         aiResponseEl.textContent = 'Thinking...'; 
 
-        const systemPrompt = `You are tasked with generating a creative, extremely short (one sentence or less) response to the following concept, even if it seems nonsensical or grammatically strange. Be concise and imaginative.`;
+        const systemPrompt = `You are tasked with generating a creative, extremely short response to the following concept, even if it seems nonsensical or grammatically strange. Be concise and imaginative. Your response must not be more than ~40 words or ~300 characters at maximum (shorter is ideal)`;
 
         let conversationHistory = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }];
 
