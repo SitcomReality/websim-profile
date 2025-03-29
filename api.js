@@ -33,8 +33,8 @@ async function generateAiText() {
         const noun = getRandomElement(NOUN_TERMS);
 
         const userPrompt = `${context} ${adjective} ${noun}`;
-        aiPromptEl.textContent = `AI Prompt: "${userPrompt}"`; 
-        aiResponseEl.textContent = 'Thinking...'; 
+        aiPromptEl.textContent = `AI Prompt: "${userPrompt}"`;
+        aiResponseEl.textContent = 'Thinking...';
 
         const systemPrompt = `Provide a short response to the following concept. Be concise: Your response must not be more than ~50 words or ~400 characters at maximum (shorter is ideal). You can use <h3>, <ul>/<ol> & <li> and <b>/<i> for formatting (these tags are to be ignored when it comes to the length of your response - they are excluded from word/character count). Most requests will expect text responses but always respond in an appropriate format for the request: a maths formula should look like an example from a textbook with brackets and operation symbols (eg. "f(x) = comedy²"), a recipe should include fraction symbols (eg. "¼ of a cupboard of flowers")`;
 
@@ -52,10 +52,10 @@ async function generateAiText() {
 
     } catch (error) {
         console.error('Error generating AI text:', error);
-        logError(error); 
+        logError(error);
         aiResponseEl.textContent = 'Error generating response.';
         if (aiPromptEl.textContent === 'Generating prompt...') {
-             aiPromptEl.textContent = 'Failed to generate prompt.';
+            aiPromptEl.textContent = 'Failed to generate prompt.';
         }
     }
 }

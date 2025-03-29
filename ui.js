@@ -14,6 +14,9 @@ const refreshAiButtonEl = document.getElementById('refresh-ai-button');
 
 // --- Project Display ---
 function displayProjects(projectsData) {
+    if (aiResponseEl) {
+        aiResponseEl.innerHTML = 'Thinking...';
+    }
     if (!projectsGridEl) return; // Exit if grid element doesn't exist
     projectsGridEl.innerHTML = ''; // Clear previous projects
 
@@ -100,6 +103,11 @@ function displayProjects(projectsData) {
      }
 }
 
+function setAiResponse(content) {
+    if (!aiResponseEl) return;
+    aiResponseEl.innerHTML = content;
+}
+
 // Export necessary elements and functions
 export {
     usernameEl,
@@ -111,7 +119,7 @@ export {
     viewsCountEl,
     projectsGridEl,
     displayProjects,
-    aiPromptEl, 
+    aiPromptEl,
     aiResponseEl,
     refreshAiButtonEl
 };
