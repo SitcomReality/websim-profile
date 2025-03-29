@@ -80,12 +80,15 @@ body {
     background-image: repeating-linear-gradient(
     to right,
     #ff0000 0,
-    #ff7f00 20%,
-    #ffff00 40%,
-    #00ff00 60%,
-    #0000ff 80%,
-    #4b0082 100%,
-    #9400d3 120%
+    #ff7f00 15%,
+    #ffff00 30%,
+    #00ff00 45%,
+    #0000ff 60%,
+    #4b0082 75%,
+    #9400d3 90%,
+    #d100d3 95%, /* Another reddish-purple */
+    #ff004e 100%, /* Magenta */
+    #ff0000 105% /* Red again */
   );
     background-size: 200% 100%;
     animation: rainbowFlow 5s linear infinite;
