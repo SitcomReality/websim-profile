@@ -120,11 +120,13 @@ function setAiResponse(content) {
 }
 
 // Add event listener for refresh AI button
+import { generateAiText } from './api.js'; // Import generateAiText from api.js
+
 function setupRefreshAiButton() {
     if (refreshAiButtonEl) {
         refreshAiButtonEl.addEventListener('click', async () => {
             try {
-                await generateAiText(); // Call the existing AI text generation function from api.js
+                await generateAiText(); // Now correctly referencing the imported function
             } catch (error) {
                 console.error('Error refreshing AI text:', error);
                 aiPromptEl.textContent = 'Refresh Failed';

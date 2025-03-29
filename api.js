@@ -173,5 +173,6 @@ async function logError(error) {
 
 export {
     initProfile,
-    logError
+    logError,
+    generateAiText
 }
