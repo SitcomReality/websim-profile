@@ -105,7 +105,7 @@ function displayProjects(projectsData) {
 
 function setAiResponse(content) {
     if (!aiResponseEl) return;
-    aiResponseEl.innerHTML = content;
+    aiResponseEl.innerHTML = content;  // Now uses innerHTML to render tags
 }
 
 // Export necessary elements and functions
