@@ -85,7 +85,7 @@ body {
     #00ff00 60%,
     #0000ff 80%,
     #4b0082 100%,
-    #9400d3 120%,
+    #9400d3 120%
   );
     background-size: 200% 100%;
     animation: rainbowFlow 5s linear infinite;
