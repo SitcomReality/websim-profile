@@ -68,8 +68,13 @@ background-image: linear-gradient(to bottom, #110020 0%, #000000 100%);
 
 #user-info h1 {
     margin: 0 0 10px 0;
-    color: var(--primary-color);
-    font-size: 2.5em;
+    font-family: 'Lobster', 'Verdana', SANS-SERIF;
+    font-size: 3rem;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 #user-info p {

@@ -82,13 +82,14 @@ async function initProfile() {
         console.log('Initializing profile...');
         const user = await fetchUserProfile(PROFILE_USERNAME);
         usernameEl.textContent = user.username || 'Anonymous';
-        descriptionEl.textContent = user.description || 'An enigma!';
+        descriptionEl.textContent = user.description || 'Face the farce.';
 
+      /*
         if (user.avatar_url && avatarEl) {
             avatarEl.src = `https://images.websim.ai/avatar/${user.username}`;
             avatarEl.alt = `${user.username}'s avatar`;
         }
-
+*/
         await fetchUserStats(user.id || PROFILE_USERNAME);
         await fetchFollowCounts(user.username || PROFILE_USERNAME);
         await fetchUserProjects(user.username || PROFILE_USERNAME);
