@@ -1,21 +1,21 @@
 :root {
-    --primary-color: #ff6b6b;
+    --primary-color: #20ff9d;
     --secondary-color: #feca57;
     --tertiary-color: #48dbfb;
     --quaternary-color: #1dd1a1;
-    --background-color: #f5f6fa;
-    --text-color: #2f3542;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --background-color: #1a1d2;
+    --text-color: #f8f8f8;
+    --card-bg: rgba(30, 30, 30, 0.8);
+    --card-shadow: 0 0 10px 30px rgba(255, 255, 255, 0.03);
 }
 
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
     color: var(--text-color);
-    background-color: var(--background-color);
-    overflow-x: hidden; /* Prevent horizontal scroll caused by background */
-    position: relative; /* Needed for background canvas positioning */
+    background-color: linear-gradient(to bottom, #1a1d20 0%, #040404 100%);
+    overflow-x: hidden; 
+    position: relative; 
 }
 
 #background-canvas {
@@ -24,18 +24,17 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; /* Place canvas behind content */
+    z-index: -1; 
 }
-
 
 #profile-container {
     max-width: 1200px;
     margin: 40px auto;
     padding: 20px;
-    position: relative; /* Ensure content is above canvas */
+    position: relative; 
     z-index: 1;
-    background: rgba(255, 255, 255, 0.1); /* Slight background for readability */
-    backdrop-filter: blur(5px); /* Frosted glass effect */
+    background: rgba(20, 20, 20, 0.6); 
+    backdrop-filter: blur(5px); 
     border-radius: 15px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
@@ -102,7 +101,6 @@ body {
     100% { transform: scale(1); }
 }
 
-
 #projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -110,24 +108,22 @@ body {
 }
 
 .project-card {
-    background: var(--card-bg);
+    background: radial-gradient(ellipse at center, rgba(30, 30, 30, 0.8) 0%, rgba(255, 255, 255, 0.1) 10%);
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    position: relative; /* For pseudo-elements */
+    position: relative; 
 }
 
-
 .project-card:hover {
-    transform: translateY(-10px) rotate(1deg);
+    transform: translateY(-15px); 
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
 }
 
-/* Add subtle colorful borders/accents */
 .project-card::before {
     content: '';
     position: absolute;
@@ -145,20 +141,19 @@ body {
     100% { background-position: 100% 50%; }
 }
 
-
 .project-thumbnail {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    display: block; /* Remove extra space below image */
+    display: block; 
 }
 
 .project-info {
     padding: 20px;
-    flex-grow: 1; /* Ensure info fills space */
+    flex-grow: 1; 
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Push stats to bottom */
+    justify-content: space-between; 
 }
 
 .project-info h3 {
@@ -171,16 +166,14 @@ body {
     color: inherit;
 }
 .project-info h3 a:hover {
-    color: var(--primary-color);
+    color: #48dbfb;
 }
-
 
 .project-description {
     font-size: 0.95em;
     color: #576574;
     margin-bottom: 15px;
     line-height: 1.5;
-    /* Clamp description to 3 lines */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -196,7 +189,7 @@ body {
     color: #7f8fa6;
     border-top: 1px solid #eee;
     padding-top: 10px;
-    margin-top: auto; /* Push to bottom */
+    margin-top: auto; 
 }
 
 .project-stats span {
@@ -211,8 +204,6 @@ body {
     fill: currentColor;
 }
 
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
     #profile-header {
         flex-direction: column;
@@ -224,7 +215,7 @@ body {
         margin-bottom: 20px;
     }
 
-     #avatar {
+    #avatar {
         width: 100px;
         height: 100px;
     }
@@ -241,19 +232,18 @@ body {
     }
 
     #projects-grid {
-        grid-template-columns: 1fr; /* Stack cards on smallest screens */
+        grid-template-columns: 1fr; 
     }
 
     #user-info h1 {
         font-size: 1.8em;
     }
 
-     #user-info p {
+    #user-info p {
         font-size: 1em;
-     }
+    }
 
     .project-card {
-         margin-bottom: 20px; /* Add space between stacked cards */
+        margin-bottom: 20px; 
     }
 }
-
