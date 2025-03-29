@@ -11,7 +11,6 @@ import {
     BLOOM_PARAMS
 } from './config.js';
 
-
 // --- DOM Elements ---
 const usernameEl = document.getElementById('username');
 const descriptionEl = document.getElementById('description');
@@ -25,28 +24,28 @@ const canvasContainer = document.getElementById('background-canvas');
 
 // --- API Fetching ---
 
-async function fetchUserProfile() {
+async function fetchUserProfile(username) {
     try {
         // Use websim API if available, otherwise fallback to direct fetch
         let user = null;
-         if (window.websim && typeof window.websim.getUser === 'function') {
-             // Check if the websim context is for the target user
-             const currentContextUser = await window.websim.getCreatedBy();
-             if (currentContextUser && currentContextUser.username === PROFILE_USERNAME) {
-                 user = currentContextUser; // Use the context user directly
-             } else {
-                 // Fetch specific user if context doesn't match (less common for own profile)
-                 const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}`);
-                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                 const data = await response.json();
-                 user = data.user;
-             }
+        if (window.websim && typeof window.websim.getUser === 'function') {
+            // Check if the websim context is for the target user
+            const currentContextUser = await window.websim.getCreatedBy();
+            if (currentContextUser && currentContextUser.username === username) {
+                user = currentContextUser; // Use the context user directly
+            } else {
+                // Fetch specific user if context doesn't match (less common for own profile)
+                const response = await fetch(`/api/v1/users/${username}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                user = data.user;
+            }
         } else {
-             console.warn("websim API not available, falling back to direct fetch for user profile.");
-             const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}`);
-             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-             const data = await response.json();
-             user = data.user;
+            console.warn("websim API not available, falling back to direct fetch for user profile.");
+            const response = await fetch(`/api/v1/users/${username}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            user = data.user;
         }
 
         if (!user) {
@@ -65,11 +64,9 @@ async function fetchUserProfile() {
         usernameEl.innerHTML = `<a href="${profileLink}" target="_blank" style="text-decoration:none; color:inherit;">@${user.username}</a>`;
         avatarEl.parentElement.innerHTML = `<a href="${profileLink}" target="_blank">${avatarEl.outerHTML}</a>`; // Wrap avatar in link
 
-
         // Fetch stats separately
         fetchUserStats(user.id || user.username); // Use ID if available, fallback to username
         fetchFollowCounts(user.id || user.username);
-
 
         return user;
 
@@ -79,7 +76,6 @@ async function fetchUserProfile() {
         return null;
     }
 }
-
 
 async function fetchUserStats(userIdOrUsername) {
     try {
@@ -96,7 +92,7 @@ async function fetchUserStats(userIdOrUsername) {
 }
 
 async function fetchFollowCounts(userIdOrUsername) {
-     try {
+    try {
         // Fetch followers count
         const followersResponse = await fetch(`/api/v1/users/${userIdOrUsername}/followers?count=true`);
         if (!followersResponse.ok) throw new Error(`Followers fetch error! status: ${followersResponse.status}`);
@@ -105,7 +101,7 @@ async function fetchFollowCounts(userIdOrUsername) {
 
         // Fetch following count
         const followingResponse = await fetch(`/api/v1/users/${userIdOrUsername}/following?count=true`);
-         if (!followingResponse.ok) throw new Error(`Following fetch error! status: ${followingResponse.status}`);
+        if (!followingResponse.ok) throw new Error(`Following fetch error! status: ${followingResponse.status}`);
         const followingData = await followingResponse.json();
         followingCountEl.textContent = followingData.following.meta.count || 0;
 
@@ -116,11 +112,10 @@ async function fetchFollowCounts(userIdOrUsername) {
     }
 }
 
-
-async function fetchUserProjects() {
+async function fetchUserProjects(username) {
     try {
         // Fetch only *posted* projects for the profile display
-        const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}/projects?posted=true&first=100`); // Fetch more initially if needed
+        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`); // Fetch more initially if needed
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         displayProjects(data.projects.data);
@@ -129,7 +124,6 @@ async function fetchUserProjects() {
         projectsGridEl.innerHTML = '<p>Error loading projects.</p>';
     }
 }
-
 
 // --- Project Display ---
 
@@ -178,7 +172,7 @@ function displayProjects(projectsData) {
             </a>
         `;
 
-         // Add subtle entrance animation
+        // Add subtle entrance animation
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
@@ -191,11 +185,10 @@ function displayProjects(projectsData) {
             card.style.transform = 'translateY(0)';
         }, 100 * (projectsData.indexOf({ project, project_revision, site })) ); // Stagger animation
 
-
         // Game interface style click handler (optional visual feedback)
         card.addEventListener('click', (e) => {
             // Prevent default if we handle navigation purely via JS (unlikely needed here)
-             // e.preventDefault();
+            // e.preventDefault();
             // Add a visual "selected" effect (example)
             document.querySelectorAll('.project-card.selected').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
@@ -204,9 +197,9 @@ function displayProjects(projectsData) {
         });
     });
 
-     // Add placeholder image CSS if needed
-     const style = document.createElement('style');
-     style.textContent = `
+    // Add placeholder image CSS if needed
+    const style = document.createElement('style');
+    style.textContent = `
         img[src="placeholder.png"] {
             background-color: #eee; /* Placeholder background */
             /* Optional: add an icon or pattern */
@@ -216,10 +209,9 @@ function displayProjects(projectsData) {
             outline: 3px solid var(--secondary-color);
             outline-offset: -3px;
         }
-     `;
-     document.head.appendChild(style);
+    `;
+    document.head.appendChild(style);
 }
-
 
 // --- Three.js Background ---
 
@@ -241,7 +233,6 @@ function initThreeJS() {
     renderer.setClearColor(BACKGROUND_COLOR, 1); // Set solid background color initially
     canvasContainer.appendChild(renderer.domElement);
 
-
     // Post-processing (Bloom)
     const renderScene = new RenderPass(scene, camera);
     const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), BLOOM_PARAMS.strength, BLOOM_PARAMS.radius, BLOOM_PARAMS.threshold);
@@ -253,14 +244,12 @@ function initThreeJS() {
     composer.addPass(bloomPass);
     composer.addPass(outputPass);
 
-
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
     scene.add(ambientLight);
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
-
 
     // Add Surreal Objects
     const geometryTypes = [
@@ -296,13 +285,12 @@ function initThreeJS() {
             y: (Math.random() - 0.5) * 0.01,
             z: (Math.random() - 0.5) * 0.01
         };
-         // Store random drift speed
-         mesh.userData.driftSpeed = {
+        // Store random drift speed
+        mesh.userData.driftSpeed = {
             x: (Math.random() - 0.5) * 0.005,
             y: (Math.random() - 0.5) * 0.005,
             z: (Math.random() - 0.5) * 0.002
         };
-
 
         scene.add(mesh);
         objects.push(mesh);
@@ -332,15 +320,13 @@ function onDocumentMouseMove(event) {
 }
 document.addEventListener('mousemove', onDocumentMouseMove, false);
 
-
 function animate() {
     requestAnimationFrame(animate);
 
-     // Gently move camera based on mouse position
+    // Gently move camera based on mouse position
     camera.position.x += (mouseX / 500 - camera.position.x) * 0.05; // Smooth interpolation
     camera.position.y += (-mouseY / 500 - camera.position.y) * 0.05;
     camera.lookAt(scene.position); // Always look at the center
-
 
     // Animate objects
     objects.forEach(obj => {
@@ -352,28 +338,36 @@ function animate() {
         obj.position.y += obj.userData.driftSpeed.y;
         obj.position.z += obj.userData.driftSpeed.z;
 
-         // Boundary check - gently push back if they go too far
-         const boundary = 10;
-         if (Math.abs(obj.position.x) > boundary) obj.userData.driftSpeed.x *= -1;
-         if (Math.abs(obj.position.y) > boundary) obj.userData.driftSpeed.y *= -1;
-         if (Math.abs(obj.position.z) > boundary) obj.userData.driftSpeed.z *= -1;
+        // Boundary check - gently push back if they go too far
+        const boundary = 10;
+        if (Math.abs(obj.position.x) > boundary) obj.userData.driftSpeed.x *= -1;
+        if (Math.abs(obj.position.y) > boundary) obj.userData.driftSpeed.y *= -1;
+        if (Math.abs(obj.position.z) > boundary) obj.userData.driftSpeed.z *= -1;
 
     });
-
 
     // renderer.render(scene, camera); // Use composer instead
     composer.render();
 }
 
-
 // --- Initialization ---
 async function initPage() {
-    const user = await fetchUserProfile();
+    // Fetch user data first to populate profile info
+    const user = await fetchUserProfile(PROFILE_USERNAME);
+
+    // Fetch projects only if user data was successfully fetched
     if (user) {
-        await fetchUserProjects();
+        await fetchUserProjects(PROFILE_USERNAME);
+    } else {
+        // Handle case where user profile couldn't load (e.g., display message in projects area)
+        if (projectsGridEl) {
+            projectsGridEl.innerHTML = '<p>Could not load user profile. Projects cannot be displayed.</p>';
+        }
     }
-    initThreeJS(); // Initialize background after fetching data
+
+    // Initialize the background animation regardless of profile load success
+    initThreeJS();
 }
 
+// --- Start the application ---
 initPage();
-
