@@ -1,6 +1,9 @@
 // User configuration
 export const PROFILE_USERNAME = "SitcomReality"; // Replace with the actual target username
 
+// Add API timeout constant
+export const API_TIMEOUT = 5000; // 5 seconds
+
 // --- Aesthetics ---
 
 // Background Canvas Configuration
@@ -24,4 +27,3 @@ export const BLOOM_PARAMS = {
     radius: 0.6,      // Radius of the bloom glow
     threshold: 0.8    // Luminosity threshold to trigger bloom (lower = more bloom)
 };
-
