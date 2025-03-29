@@ -9,7 +9,8 @@ import {
     projectsGridEl,
     displayProjects,
     aiPromptEl, 
-    aiResponseEl
+    aiResponseEl,
+    setAiResponse
 } from './ui.js';
 import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 import { CONTEXT_TERMS } from './context_terms.js';
@@ -45,7 +46,7 @@ async function generateAiText() {
         });
 
         if (completion && completion.content) {
-            aiResponseEl.textContent = completion.content;
+            setAiResponse(completion.content);
         } else {
             throw new Error("AI did not return content.");
         }

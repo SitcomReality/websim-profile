@@ -105,7 +105,18 @@ function displayProjects(projectsData) {
 
 function setAiResponse(content) {
     if (!aiResponseEl) return;
-    aiResponseEl.innerHTML = content;  // Now uses innerHTML to render tags
+    
+    // Create a temporary div to safely parse HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    
+    // Clear existing content
+    aiResponseEl.innerHTML = '';
+    
+    // Append all child nodes, which will render HTML tags
+    while (tempDiv.firstChild) {
+        aiResponseEl.appendChild(tempDiv.firstChild);
+    }
 }
 
 // Export necessary elements and functions
@@ -121,5 +132,6 @@ export {
     displayProjects,
     aiPromptEl,
     aiResponseEl,
-    refreshAiButtonEl
+    refreshAiButtonEl,
+    setAiResponse
 };
