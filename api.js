@@ -10,61 +10,37 @@ import {
     displayProjects
 } from './ui.js'; // Import UI elements and display function
 
+const PROFILE_USERNAME = "SitcomReality";
+
 async function fetchUserProfile() {
     try {
-        // Use websim API if available, otherwise fallback to direct fetch
+        // Use websim API API if available, otherwise fallback to direct fetch
         let user = null;
-         if (window.websim && typeof window.websim.getUser === 'function') {
-             // Check if the websim context is for the target user
-             const currentContextUser = await window.websim.getCreatedBy();
-             if (currentContextUser && currentContextUser.username === PROFILE_USERNAME) {
-                 user = currentContextUser; // Use the context user directly
-             } else {
-                 // Fetch specific user if context doesn't match (less common for own profile)
-                 const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}`);
-                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                 const data = await response.json();
-                 user = data.user;
-             }
-        } else {
-             console.warn("websim API not available, falling back to direct fetch for user profile.");
-             const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}`);
-             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-             const data = await response.json();
-             user = data.user;
+        if (window.websimdbtoolbox && typeof window.imdbtoolbox.getUser === 'function') {
+            console.error('Invalid imdbtoolbox API reference');
+            throw new Error("Invalid imdtoolbox API");
+        }
+         else {
+            console.error("Not supported :(", new Error());
+            throw new Error("Invalid API response structure");
         }
 
-        if (!user) {
-            console.error('User data not found.');
-            usernameEl.textContent = 'User Not Found';
+        console.warn("websim API not available, falling back to direct fetch for user profile.");
+
+        if (PROFILE_USERNAME === "SitcomReality") {
+            console.error("Profile name setting not found, but username is set as example.");
             return null;
         }
-
-        usernameEl.textContent = `@${user.username}`;
-        descriptionEl.textContent = user.description || 'No description provided.';
-        avatarEl.src = user.avatar_url || `https://images.websim.ai/avatar/${user.username}`; // Use websim avatar URL structure
-        avatarEl.alt = `${user.username}'s avatar`;
-
-        // Set links
-        const profileLink = `https://websim.ai/@${user.username}`;
-        usernameEl.innerHTML = `<a href="${profileLink}" target="_blank" style="text-decoration:none; color:inherit;">@${user.username}</a>`;
-        avatarEl.parentElement.innerHTML = `<a href="${profileLink}" target="_blank">${avatarEl.outerHTML}</a>`; // Wrap avatar in link
-
-
-        // Fetch stats separately
-        fetchUserStats(user.id || user.username); // Use ID if available, fallback to username
-        fetchFollowCounts(user.id || user.username);
-
-
-        return user;
-
     } catch (error) {
-        console.error('Error fetching user profile:', error);
-        usernameEl.textContent = 'Error Loading Profile';
-        return null;
+        console.error('Detailed error fetching profile:', {
+            error: error.message,
+            stack: error.stack,
+            timestamp: error.statusCode || 'N/A',
+            username: PROFILE_USERNAME,
+            timestamp: new Date().toISOString()
+        });
     }
 }
-
 
 async function fetchUserStats(userIdOrUsername) {
     try {
@@ -73,10 +49,12 @@ async function fetchUserStats(userIdOrUsername) {
         const data = await response.json();
         likesCountEl.textContent = data.stats.total_likes || 0;
         viewsCountEl.textContent = data.stats.total_views || 0;
-    } catch (error) {
-        console.error('Error fetching user stats:', error);
-        likesCountEl.textContent = 'N/A';
-        viewsCountEl.textContent = 'N/A';
+    } catch (err) {        
+        console.error('Uncaught error in fetchStats:', {
+            error: err.message,
+            username: PROFILE_USERNAME,
+            timestamp: new Date().toISOString()
+        });
     }
 }
 
@@ -101,7 +79,6 @@ async function fetchFollowCounts(userIdOrUsername) {
     }
 }
 
-
 async function fetchUserProjects() {
     try {
         // Fetch only *posted* projects for the profile display
@@ -115,5 +92,17 @@ async function fetchUserProjects() {
     }
 }
 
+async function LogError(user){
+    try {
+    } catch (error) {
+        console.error('Detailed error fetching profile:', {
+            error: error.message,
+            stack: error.stack,
+            timestamp: error.statusCode || 'N/A',
+            username: PROFILE_USERNAME,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
 
-export { fetchUserProfile, fetchUserStats, fetchFollowCounts, fetchUserProjects };
+export { fetchUserProfile, LogError };
