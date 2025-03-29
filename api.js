@@ -10,22 +10,25 @@ import {
     displayProjects
 } from './ui.js'; // Import UI elements and display function
 
-async function fetchUserProfile(username) {
+async function fetchUserProfile() {
     try {
+        // Use websim API if available, otherwise fallback to direct fetch
         let user = null;
          if (window.websim && typeof window.websim.getUser === 'function') {
+             // Check if the websim context is for the target user
              const currentContextUser = await window.websim.getCreatedBy();
-             if (currentContextUser && currentContextUser.username === username) {
-                 user = currentContextUser;
+             if (currentContextUser && currentContextUser.username === PROFILE_USERNAME) {
+                 user = currentContextUser; // Use the context user directly
              } else {
-                 const response = await fetch(`/api/v1/users/${username}`);
+                 // Fetch specific user if context doesn't match (less common for own profile)
+                 const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}`);
                  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                  const data = await response.json();
                  user = data.user;
              }
         } else {
              console.warn("websim API not available, falling back to direct fetch for user profile.");
-             const response = await fetch(`/api/v1/users/${username}`);
+             const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}`);
              if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
              const data = await response.json();
              user = data.user;
@@ -33,25 +36,23 @@ async function fetchUserProfile(username) {
 
         if (!user) {
             console.error('User data not found.');
-            if (usernameEl) usernameEl.textContent = 'User Not Found';
+            usernameEl.textContent = 'User Not Found';
             return null;
         }
 
-        if (usernameEl) usernameEl.textContent = `@${user.username}`;
-        if (descriptionEl) descriptionEl.textContent = user.description || 'No description provided.';
-        if (avatarEl) {
-            avatarEl.src = user.avatar_url || `https://images.websim.ai/avatar/${user.username}`;
-            avatarEl.alt = `${user.username}'s avatar`;
-        }
+        usernameEl.textContent = `@${user.username}`;
+        descriptionEl.textContent = user.description || 'No description provided.';
+        avatarEl.src = user.avatar_url || `https://images.websim.ai/avatar/${user.username}`; // Use websim avatar URL structure
+        avatarEl.alt = `${user.username}'s avatar`;
 
         // Set links
         const profileLink = `https://websim.ai/@${user.username}`;
-        if (usernameEl) usernameEl.innerHTML = `<a href="${profileLink}" target="_blank" style="text-decoration:none; color:inherit;">@${user.username}</a>`;
-        if (avatarEl && avatarEl.parentElement) avatarEl.parentElement.innerHTML = `<a href="${profileLink}" target="_blank">${avatarEl.outerHTML}</a>`;
+        usernameEl.innerHTML = `<a href="${profileLink}" target="_blank" style="text-decoration:none; color:inherit;">@${user.username}</a>`;
+        avatarEl.parentElement.innerHTML = `<a href="${profileLink}" target="_blank">${avatarEl.outerHTML}</a>`; // Wrap avatar in link
 
 
         // Fetch stats separately
-        fetchUserStats(user.id || user.username);
+        fetchUserStats(user.id || user.username); // Use ID if available, fallback to username
         fetchFollowCounts(user.id || user.username);
 
 
@@ -59,7 +60,7 @@ async function fetchUserProfile(username) {
 
     } catch (error) {
         console.error('Error fetching user profile:', error);
-        if (usernameEl) usernameEl.textContent = 'Error Loading Profile';
+        usernameEl.textContent = 'Error Loading Profile';
         return null;
     }
 }
@@ -70,45 +71,49 @@ async function fetchUserStats(userIdOrUsername) {
         const response = await fetch(`/api/v1/users/${userIdOrUsername}/stats`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        if (likesCountEl) likesCountEl.textContent = data.stats.total_likes || 0;
-        if (viewsCountEl) viewsCountEl.textContent = data.stats.total_views || 0;
+        likesCountEl.textContent = data.stats.total_likes || 0;
+        viewsCountEl.textContent = data.stats.total_views || 0;
     } catch (error) {
         console.error('Error fetching user stats:', error);
-        if (likesCountEl) likesCountEl.textContent = 'N/A';
-        if (viewsCountEl) viewsCountEl.textContent = 'N/A';
+        likesCountEl.textContent = 'N/A';
+        viewsCountEl.textContent = 'N/A';
     }
 }
 
 async function fetchFollowCounts(userIdOrUsername) {
      try {
+        // Fetch followers count
         const followersResponse = await fetch(`/api/v1/users/${userIdOrUsername}/followers?count=true`);
         if (!followersResponse.ok) throw new Error(`Followers fetch error! status: ${followersResponse.status}`);
         const followersData = await followersResponse.json();
-       if (followersCountEl) followersCountEl.textContent = followersData.followers.meta.count || 0;
+        followersCountEl.textContent = followersData.followers.meta.count || 0;
 
+        // Fetch following count
         const followingResponse = await fetch(`/api/v1/users/${userIdOrUsername}/following?count=true`);
          if (!followingResponse.ok) throw new Error(`Following fetch error! status: ${followingResponse.status}`);
         const followingData = await followingResponse.json();
-        if (followingCountEl) followingCountEl.textContent = followingData.following.meta.count || 0;
+        followingCountEl.textContent = followingData.following.meta.count || 0;
 
     } catch (error) {
         console.error('Error fetching follow counts:', error);
-        if (followersCountEl) followersCountEl.textContent = 'N/A';
-        if (followingCountEl) followingCountEl.textContent = 'N/A';
+        followersCountEl.textContent = 'N/A';
+        followingCountEl.textContent = 'N/A';
     }
 }
 
 
-async function fetchUserProjects(username) {
+async function fetchUserProjects() {
     try {
-        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`);
+        // Fetch only *posted* projects for the profile display
+        const response = await fetch(`/api/v1/users/${PROFILE_USERNAME}/projects?posted=true&first=100`); // Fetch more initially if needed
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        displayProjects(data.projects.data); // Call display function from ui.js
+        displayProjects(data.projects.data);
     } catch (error) {
         console.error('Error fetching user projects:', error);
-       if (projectsGridEl) projectsGridEl.innerHTML = '<p>Error loading projects.</p>';
+        projectsGridEl.innerHTML = '<p>Error loading projects.</p>';
     }
 }
+
 
 export { fetchUserProfile, fetchUserStats, fetchFollowCounts, fetchUserProjects };
