@@ -9,15 +9,18 @@ import {
     projectsGridEl,
     displayProjects
 } from './ui.js';
-import { PROFILE_USER, API_TIMEOUT } from './config.js';
+import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 
 async function fetchUserProfile(username) {
     try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), API_TIMEOUT);
-        const response = await fetch(`/api/v1/users/${username}`, { signal: controller.signal });
+        const response = await fetch(`/api/v1/users/${username}`, {
+            signal: controller.signal
+        });
         if (response.status >= 400) throw new Error(`Status: ${response.status}`);
-        const user = await response.json();
+        const { user } = await response.json();
+        if (!user) throw new Error('no user data returned');
         return user;
     } catch (error) {
         logError(error);
@@ -35,7 +38,7 @@ async function fetchUserStats(userIdOrUsername) {
     } catch (err) {
         console.error('Uncaught error in fetchStats:', {
             error: err.message,
-            username: PROFILE_USER.username,
+            username: PROFILE_USERNAME,
             timestamp: new Date().toISOString()
         });
     }
@@ -76,18 +79,21 @@ async function fetchUserProjects(username) {
 
 async function initProfile() {
     try {
-        // Use hardcoded user data
-        usernameEl.textContent = PROFILE_USER.username;
-        descriptionEl.textContent = PROFILE_USER.description;
-        avatarEl.src = PROFILE_USER.avatar_url;
-        avatarEl.alt = `${PROFILE_USER.username}'s avatar`;
+        console.log('Initializing profile...');
+        const user = await fetchUserProfile(PROFILE_USERNAME);
+        usernameEl.textContent = user.username || 'Anonymous';
+        descriptionEl.textContent = user.description || 'An enigma!';
 
-        // Still load stats and projects from API
-        await fetchUserStats(PROFILE_USER.username);
-        await fetchFollowCounts(PROFILE_USER.username);
-        await fetchUserProjects(PROFILE_USER.username);
+        if (user.avatar_url && avatarEl) {
+            avatarEl.src = `https://images.websim.ai/avatar/${user.username}`;
+            avatarEl.alt = `${user.username}'s avatar`;
+        }
+
+        await fetchUserStats(user.id || PROFILE_USERNAME);
+        await fetchFollowCounts(user.username || PROFILE_USERNAME);
+        await fetchUserProjects(user.username || PROFILE_USERNAME);
     } catch (error) {
-        console.error('Profile initialization:', error);
+        console.error('Profile initialization error', error);
         logError(error);
     } finally {
         console.info('Profile initialization attempted');
