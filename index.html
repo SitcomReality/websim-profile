@@ -1,0 +1,48 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SitcomReality's Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+        }
+      }
+      </script>
+</head>
+<body>
+    <div id="profile-container">
+        <header id="profile-header">
+            <div id="avatar-container">
+                <img id="avatar" src="" alt="User Avatar">
+            </div>
+            <div id="user-info">
+                <h1 id="username"></h1>
+                <p id="description"></p>
+                <div id="stats">
+                    <span id="followers-count"></span> followers
+                    <span id="following-count"></span> following
+                    <span id="likes-count"></span> likes
+                    <span id="views-count"></span> views
+                </div>
+            </div>
+        </header>
+
+        <main id="projects-section">
+            <h2>Choose Your Adventure!</h2>
+            <div id="projects-grid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <div id="background-canvas"></div>
+
+    <script type="module" src="config.js"></script>
+    <script type="module" src="script.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
