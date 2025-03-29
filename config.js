@@ -8,7 +8,7 @@ export const API_TIMEOUT = 5000; // 5 seconds
 // --- Aesthetics ---
 
 // Background Canvas Configuration
-export const BACKGROUND_COLOR = 0xf0e4f2; // A soft, slightly surreal pale lavender/pink
+export const BACKGROUND_COLOR = 0x110020; // Dark blue-black mix
 
 // Colors for the 3D objects in the background
 export const OBJECT_COLORS = [
