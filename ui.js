@@ -10,6 +10,7 @@ const projectsGridEl = document.getElementById('projects-grid');
 // Add AI text elements
 const aiPromptEl = document.getElementById('ai-prompt');
 const aiResponseEl = document.getElementById('ai-response');
+const refreshAiButtonEl = document.getElementById('refresh-ai-button');
 
 // --- Project Display ---
 function displayProjects(projectsData) {
@@ -110,6 +111,7 @@ export {
     viewsCountEl,
     projectsGridEl,
     displayProjects,
-    aiPromptEl, // Export new element
-    aiResponseEl // Export new element
+    aiPromptEl, 
+    aiResponseEl,
+    refreshAiButtonEl
 };
