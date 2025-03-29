@@ -9,7 +9,7 @@ import {
     projectsGridEl,
     displayProjects
 } from './ui.js';
-import { PROFILE_NAME, PROFILE_USERNAME, API_TIMEOUT } from './config.js';
+import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 
 async function fetchUserProfile(username) {
     try {
