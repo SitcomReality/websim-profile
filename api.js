@@ -75,20 +75,29 @@ async function fetchUserProjects(username) {
 }
 
 async function initProfile() {
-    console.log('Initializing profile data loading...');
-    const user = await fetchUserProfile(PROFILE_USERNAME);
-    console.log('Fetched profile data successfully');
-    usernameEl.textContent = user.username || 'No username';
-    descriptionEl.textContent = user.description || 'No description available';
-    await fetchUserStats(user.id || PROFILE_USERNAME);
-    await fetchFollowCounts(user.username || PROFILE_USERNAME);
-    await fetchUserProjects(user.username || PROFILE_USERNAME);
-}.catch(error => {
-    console.error('Profile initialization:', error);
-    logError(error);
-}).finally(() => {
-    console.info('Profile initialization attempted');
-});
+    try {
+        console.log('Initializing profile data loading...');
+        const user = await fetchUserProfile(PROFILE_USERNAME);
+        console.log('Fetched profile data successfully');
+        usernameEl.textContent = user.username || 'No username';
+        descriptionEl.textContent = user.description || 'No description available';
+        
+        // Update avatar if available
+        if (user.avatar_url && avatarEl) {
+            avatarEl.src = `https://images.websim.ai/avatar/${user.username}`;
+            avatarEl.alt = `${user.username}'s avatar`;
+        }
+
+        await fetchUserStats(user.id || PROFILE_USERNAME);
+        await fetchFollowCounts(user.username || PROFILE_USERNAME);
+        await fetchUserProjects(user.username || PROFILE_USERNAME);
+    } catch (error) {
+        console.error('Profile initialization:', error);
+        logError(error);
+    } finally {
+        console.info('Profile initialization attempted');
+    }
+}
 
 async function logError(error) {
     if (error instanceof Error) {
