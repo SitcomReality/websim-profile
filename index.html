@@ -17,7 +17,7 @@
     <div id="profile-container">
         <header id="profile-header">
             <div id="avatar-container">
-                 <!-- The <img> tag will be added dynamically by api.js -->
+                <img id="avatar" src="/SITCOMREALITYLOGO.jpg" alt="SitcomReality's Profile Avatar" loading="lazy">
             </div>
             <div id="user-info">
                 <h1 id="username">Loading...</h1> 
@@ -29,10 +29,22 @@
                     <span ><span id="views-count">--</span> views</span>
                 </div>
             </div>
+            <!-- New AI Text Container -->
+            <div id="ai-text-container">
+                <button id="refresh-ai-button" aria-label="Generate new AI text">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 12 A 10 10 0 0 0 12 22 A10 10 0 0012 2 A10 10 0 0 0 12 22" stroke="none" />
+                        <path d="M12 8v4l3 3"/>
+                        <path d="M17.56,12A10,10,10,0,1110,12A10,10,10,0,1,17.56,12zm13.5,34h6v6H3zM.66,5.12L12,12;h8.42.66,12z5.47V3.3,h3h1.41l4.924.247.66z "/>                                                                                                                                                                                                          
+                    </svg>
+                </button>
+                <p id="ai-prompt">Generating prompt...</p>
+                <p id="ai-response">Thinking...</p>
+            </div>
         </header>
 
         <main id="projects-section">
-            <h2>Choose Your Adventure!</h2>
+            <h2>Need a distraction from the apocalypse?</h2>
             <div id="projects-grid">
                 <p>Loading projects...</p> 
             </div>
@@ -42,6 +54,10 @@
     <div id="background-canvas"></div>
 
     <script type="module" src="script.js"></script>
+    <script type="module">
+        import { initProfile } from './api.js';
+        document.addEventListener('DOMContentLoaded', function() { initProfile().catch(console.error); });
+    </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
