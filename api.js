@@ -10,7 +10,8 @@ import {
     displayProjects,
     aiPromptEl, 
     aiResponseEl,
-    setAiResponse
+    setAiResponse,
+    setupRefreshAiButton
 } from './ui.js';
 import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 import { CONTEXT_TERMS } from './context_terms.js';
@@ -139,7 +140,8 @@ async function initProfile() {
             fetchUserStats(user.id || PROFILE_USERNAME),
             fetchFollowCounts(user.username || PROFILE_USERNAME),
             fetchUserProjects(user.username || PROFILE_USERNAME),
-            generateAiText() 
+            generateAiText(), 
+            setupRefreshAiButton()
         ]);
 
     } catch (error) {

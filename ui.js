@@ -119,6 +119,24 @@ function setAiResponse(content) {
     }
 }
 
+// Add event listener for refresh AI button
+function setupRefreshAiButton() {
+    if (refreshAiButtonEl) {
+        refreshAiButtonEl.addEventListener('click', async () => {
+            try {
+                await generateAiText(); // Call the existing AI text generation function from api.js
+            } catch (error) {
+                console.error('Error refreshing AI text:', error);
+                aiPromptEl.textContent = 'Refresh Failed';
+                aiResponseEl.textContent = 'Could not generate new text.';
+            }
+        });
+    }
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', setupRefreshAiButton);
+
 // Export necessary elements and functions
 export {
     usernameEl,
@@ -133,5 +151,6 @@ export {
     aiPromptEl,
     aiResponseEl,
     refreshAiButtonEl,
-    setAiResponse
+    setAiResponse,
+    setupRefreshAiButton
 };
