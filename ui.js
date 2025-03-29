@@ -7,6 +7,9 @@ const followingCountEl = document.getElementById('following-count');
 const likesCountEl = document.getElementById('likes-count');
 const viewsCountEl = document.getElementById('views-count');
 const projectsGridEl = document.getElementById('projects-grid');
+// Add AI text elements
+const aiPromptEl = document.getElementById('ai-prompt');
+const aiResponseEl = document.getElementById('ai-response');
 
 // --- Project Display ---
 function displayProjects(projectsData) {
@@ -106,5 +109,7 @@ export {
     likesCountEl,
     viewsCountEl,
     projectsGridEl,
-    displayProjects
+    displayProjects,
+    aiPromptEl, // Export new element
+    aiResponseEl // Export new element
 };

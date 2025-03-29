@@ -45,15 +45,19 @@ body {
 #profile-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
     margin-bottom: 40px;
     padding: 20px;
     background: var(--card-bg);
     border-radius: 10px;
     box-shadow: var(--card-shadow);
+    gap: 20px;
 }
 
 #avatar-container {
     margin-right: 30px;
+    flex-shrink: 0;
 }
 
 #avatar {
@@ -66,6 +70,11 @@ body {
 
 #avatar:hover {
     transform: scale(1.1) rotate(5deg);
+}
+
+#user-info {
+    flex-grow: 1;
+    min-width: 250px;
 }
 
 #user-info h1 {
@@ -116,6 +125,35 @@ body {
 }
 #stats span:last-child {
     margin-right: 0;
+}
+
+#ai-text-container {
+    background: rgba(40, 40, 40, 0.7);
+    border-left: 4px solid var(--tertiary-color);
+    padding: 15px;
+    border-radius: 5px;
+    max-width: 300px;
+    min-width: 200px;
+    font-size: 0.9em;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+#ai-text-container p {
+    margin: 0;
+    color: #ccc;
+}
+
+#ai-text-container #ai-prompt {
+    font-style: italic;
+    color: #888;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+}
+
+#ai-text-container #ai-response {
+    font-weight: bold;
+    color: var(--text-color);
 }
 
 #projects-section h2 {
@@ -239,12 +277,35 @@ body {
 @media (max-width: 768px) {
     #profile-header {
         flex-direction: column;
+        align-items: flex-start;
         text-align: center;
     }
 
     #avatar-container {
         margin-right: 0;
         margin-bottom: 20px;
+        align-self: center;
+    }
+
+    #user-info {
+        width: 100%;
+        text-align: center;
+    }
+    #user-info #stats {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    #ai-text-container {
+        margin-left: 0;
+        width: 100%;
+        max-width: none;
+        margin-top: 20px;
+        text-align: center;
+        border-left: none;
+        border-top: 4px solid var(--tertiary-color);
+        box-sizing: border-box;
     }
 
     #avatar {

@@ -7,9 +7,58 @@ import {
     likesCountEl,
     viewsCountEl,
     projectsGridEl,
-    displayProjects
+    displayProjects,
+    aiPromptEl, 
+    aiResponseEl
 } from './ui.js';
 import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
+import { CONTEXT_TERMS } from './context_terms.js';
+import { ADJECTIVE_TERMS } from './adjective_terms.js';
+import { NOUN_TERMS } from './noun_terms.js';
+
+function getRandomElement(arr) {
+    if (!arr || arr.length === 0) return '';
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+async function generateAiText() {
+    if (!aiPromptEl || !aiResponseEl) {
+        console.error("AI text elements not found.");
+        return;
+    }
+
+    try {
+        const context = getRandomElement(CONTEXT_TERMS);
+        const adjective = getRandomElement(ADJECTIVE_TERMS);
+        const noun = getRandomElement(NOUN_TERMS);
+
+        const userPrompt = `${context} ${adjective} ${noun}`;
+        aiPromptEl.textContent = `AI Prompt: "${userPrompt}"`; 
+        aiResponseEl.textContent = 'Thinking...'; 
+
+        const systemPrompt = `You are tasked with generating a creative, extremely short (one sentence or less) response to the following concept, even if it seems nonsensical or grammatically strange. Be concise and imaginative.`;
+
+        let conversationHistory = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }];
+
+        const completion = await window.websim.chat.completions.create({
+            messages: conversationHistory,
+        });
+
+        if (completion && completion.content) {
+            aiResponseEl.textContent = completion.content;
+        } else {
+            throw new Error("AI did not return content.");
+        }
+
+    } catch (error) {
+        console.error('Error generating AI text:', error);
+        logError(error); 
+        aiResponseEl.textContent = 'Error generating response.';
+        if (aiPromptEl.textContent === 'Generating prompt...') {
+             aiPromptEl.textContent = 'Failed to generate prompt.';
+        }
+    }
+}
 
 async function fetchUserProfile(username) {
     try {
@@ -18,6 +67,10 @@ async function fetchUserProfile(username) {
         const response = await fetch(`/api/v1/users/${username}`, {
             signal: controller.signal
         });
+        clearTimeout(timer); 
+        if (response.status === 408 || response.statusText === 'AbortError') {
+           throw new Error('API request timed out');
+        }
         if (response.status >= 400) throw new Error(`Status: ${response.status}`);
         const { user } = await response.json();
         if (!user) throw new Error('no user data returned');
@@ -46,13 +99,11 @@ async function fetchUserStats(userIdOrUsername) {
 
 async function fetchFollowCounts(userIdOrUsername) {
     try {
-        // Fetch followers count
         const followersResponse = await fetch(`/api/v1/users/${userIdOrUsername}/followers?count=true`);
         if (!followersResponse.ok) throw new Error(`Followers fetch error! status: ${followersResponse.status}`);
         const followersData = await followersResponse.json();
         followersCountEl.textContent = followersData.followers.meta.count || 0;
 
-        // Fetch following count
         const followingResponse = await fetch(`/api/v1/users/${userIdOrUsername}/following?count=true`);
         if (!followingResponse.ok) throw new Error(`Following fetch error! status: ${followingResponse.status}`);
         const followingData = await followingResponse.json();
@@ -66,8 +117,7 @@ async function fetchFollowCounts(userIdOrUsername) {
 
 async function fetchUserProjects(username) {
     try {
-        // Fetch only *posted* projects for the profile display
-        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`); // Fetch more initially if needed
+        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`); 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         displayProjects(data.projects.data);
@@ -84,18 +134,27 @@ async function initProfile() {
         usernameEl.textContent = user.username || 'Anonymous';
         descriptionEl.textContent = user.description || 'Face the farce.';
 
-      /*
-        if (user.avatar_url && avatarEl) {
-            avatarEl.src = `https://images.websim.ai/avatar/${user.username}`;
-            avatarEl.alt = `${user.username}'s avatar`;
-        }
-*/
-        await fetchUserStats(user.id || PROFILE_USERNAME);
-        await fetchFollowCounts(user.username || PROFILE_USERNAME);
-        await fetchUserProjects(user.username || PROFILE_USERNAME);
+        await Promise.all([
+            fetchUserStats(user.id || PROFILE_USERNAME),
+            fetchFollowCounts(user.username || PROFILE_USERNAME),
+            fetchUserProjects(user.username || PROFILE_USERNAME),
+            generateAiText() 
+        ]);
+
     } catch (error) {
         console.error('Profile initialization error', error);
-        logError(error);
+        if (!error.message.includes('API request') && !error.message.includes('HTTP error') && !error.message.includes('Status:')) {
+            logError(error);
+        }
+        if (usernameEl.textContent === 'Loading...') {
+            usernameEl.textContent = 'Error';
+            descriptionEl.textContent = 'Could not load profile data.';
+        }
+        if (aiResponseEl && aiResponseEl.textContent === 'Thinking...') {
+            aiPromptEl.textContent = 'AI Unavailable';
+            aiResponseEl.textContent = 'Could not connect.';
+        }
+
     } finally {
         console.info('Profile initialization attempted');
     }
