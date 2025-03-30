@@ -12,6 +12,9 @@ function createProjectCardHTML(project, project_revision, site) {
     // Use project URL for the link, as site might not always exist
     const projectUrl = `https://websim.ai/p/${project.id}`;
     const displayUrl = site ? `https://websim.ai/c/${site.id}` : projectUrl;
+    const views = project.stats?.views ?? 0;
+    const likes = project.stats?.likes ?? 0;
+    const comments = project.stats?.comments ?? 0;
 
     return `
         <div class="project-card" data-project-id="${project.id}">
@@ -27,15 +30,15 @@ function createProjectCardHTML(project, project_revision, site) {
                 <div class="project-stats">
                     <span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                        ${project.stats?.views ?? 0}
+                        ${views}
                     </span>
                     <span>
                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        ${project.stats?.likes ?? 0}
+                        ${likes}
                     </span>
                     <span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-                        ${project.stats?.comments ?? 0}
+                        ${comments}
                     </span>
                 </div>
             </div>
@@ -60,20 +63,21 @@ function displayCityScape(projectsData) {
     projectsData.forEach((projectItem, index) => {
         const { project, project_revision, site } = projectItem;
 
-        if (!project || !project_revision) {
-            console.warn(`Missing data for project index ${index}. Skipping.`);
-            // Optionally render an error placeholder object
-            // const errorDiv = document.createElement('div');
-            // errorDiv.classList.add('city-object', 'error-object'); // Add specific error class if needed
-            // errorDiv.innerHTML = `<p>Data Error</p>`;
-            // errorDiv.style.setProperty('--animation-delay', `${(index * 0.05)}s`);
-            // cityScapeEl.appendChild(errorDiv);
+        if (!project || !project_revision || !project.stats) { // Ensure stats exist
+            console.warn(`Missing data or stats for project index ${index}. Skipping.`);
             return; // Skip this iteration
         }
 
         const cityObjectDiv = document.createElement('div');
         cityObjectDiv.classList.add('city-object');
         cityObjectDiv.innerHTML = createProjectCardHTML(project, project_revision, site);
+
+        // Calculate height factor based on views (log scale, capped)
+        const views = project.stats.views ?? 0;
+        const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5; // Adjusted scaling factor
+        const heightFactor = Math.max(0.6, Math.min(2.5, baseHeightFactor)); // Clamp between 0.6 and 2.5
+        cityObjectDiv.style.setProperty('--building-height-factor', heightFactor);
+
         // Set animation delay based on index for staggered entry
         cityObjectDiv.style.setProperty('--animation-delay', `${(index * 0.05)}s`);
 
