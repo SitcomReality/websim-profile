@@ -1,10 +1,9 @@
-/* New file */
 import { getIcon } from './icons.js';
+// Import the function to update player state
+import { setSelectedBuilding } from './playerState.js';
 
 // --- DOM Elements ---
-const cityScapeEl = document.getElementById('city-scape'); // Renamed from gameBoardEl
-
-// --- City/Project Display ---
+const cityScapeEl = document.getElementById('city-scape');
 
 // Helper to generate HTML for a project card within a city object
 function createProjectCardHTML(project, project_revision, site) {
@@ -46,7 +45,22 @@ function createProjectCardHTML(project, project_revision, site) {
     `;
 }
 
-// Renamed function to reflect new purpose
+// Function to update the visual highlight based on selected ID
+function updateBuildingSelectionHighlight(selectedId) {
+    if (!cityScapeEl) return;
+    const cityObjects = cityScapeEl.querySelectorAll('.city-object');
+    cityObjects.forEach(obj => {
+        const projectId = obj.dataset.projectId;
+        if (projectId && projectId === selectedId) {
+            obj.classList.add('selected');
+        } else {
+            obj.classList.remove('selected');
+        }
+    });
+}
+// Expose the highlight function globally for playerState to call
+window.updateBuildingSelectionHighlight = updateBuildingSelectionHighlight;
+
 function displayCityScape(projectsData) {
     if (!cityScapeEl) {
         console.error("City scape element not found!");
@@ -59,33 +73,51 @@ function displayCityScape(projectsData) {
         return;
     }
 
-    // Remove board distribution logic - simply iterate and append
     projectsData.forEach((projectItem, index) => {
         const { project, project_revision, site } = projectItem;
 
-        if (!project || !project_revision || !project.stats) { // Ensure stats exist
+        if (!project || !project_revision || !project.stats) {
             console.warn(`Missing data or stats for project index ${index}. Skipping.`);
-            return; // Skip this iteration
+            return;
         }
 
         const cityObjectDiv = document.createElement('div');
         cityObjectDiv.classList.add('city-object');
+        // Store project ID for selection logic
+        cityObjectDiv.dataset.projectId = project.id;
         cityObjectDiv.innerHTML = createProjectCardHTML(project, project_revision, site);
 
-        // Calculate height factor based on views (log scale, capped)
-        const views = project.stats.views ?? 0;
-        const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5; // Adjusted scaling factor
-        const heightFactor = Math.max(0.6, Math.min(2.5, baseHeightFactor)); // Clamp between 0.6 and 2.5
-        cityObjectDiv.style.setProperty('--building-height-factor', heightFactor);
+        // --- Add Click Listener ---
+        cityObjectDiv.addEventListener('click', (event) => {
+            // Prevent selection if the link button itself was clicked
+            if (event.target.closest('.project-link-button')) {
+                return;
+            }
+            setSelectedBuilding(project.id); // Call playerState function
+        });
+        // --- End Click Listener ---
 
-        // Set animation delay based on index for staggered entry
+        const views = project.stats.views ?? 0;
+        const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5;
+        const heightFactor = Math.max(0.6, Math.min(2.5, baseHeightFactor));
+        cityObjectDiv.style.setProperty('--building-height-factor', heightFactor);
         cityObjectDiv.style.setProperty('--animation-delay', `${(index * 0.05)}s`);
 
         cityScapeEl.appendChild(cityObjectDiv);
     });
 
-    // Remove the style injection - ensure styles are in CSS
+    // Initial highlight check in case state is loaded with a selection
+    // This requires playerState to be initialized before displayCityScape runs
+    // (Which it should be based on current initProfile logic)
+    try {
+        const { getPlayerState } = await import('./playerState.js');
+        const initialState = getPlayerState();
+        if (initialState.selectedBuildingId) {
+            updateBuildingSelectionHighlight(initialState.selectedBuildingId);
+        }
+    } catch (e) {
+        console.error("Could not get initial player state for selection highlight:", e);
+    }
 }
 
-// Export necessary functions
-export { displayCityScape }; // Updated export name
+export { displayCityScape, updateBuildingSelectionHighlight };

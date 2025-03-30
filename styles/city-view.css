@@ -42,9 +42,9 @@
     display: flex;
     align-items: flex-end;
     gap: 25px;
-    padding: 15px 15px 15px 0;
+    padding: 15px 15px 15px 0; 
     transform-style: preserve-3d;
-    min-height: calc(var(--base-height, 180px) * 0.6 + 50px);
+    min-height: calc(var(--base-height, 180px) * 0.6 + 60px);
     width: fit-content;
 }
 
@@ -62,12 +62,24 @@
     animation-delay: var(--animation-delay, 0s);
     transform-style: preserve-3d;
     transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px);
-    transition: transform 0.3s ease, height 0.3s ease;
+    transition: transform 0.3s ease, height 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease; 
     flex-shrink: 0;
+    cursor: pointer; 
 }
 
 .city-object:hover {
     transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(40px) scale(1.05);
+    filter: brightness(1.1);
+}
+
+.city-object.selected {
+    transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(50px) scale(1.08); 
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px 5px var(--primary-color); 
+    z-index: 10; 
+}
+.city-object.selected .project-card {
+    border-color: var(--primary-color); 
 }
 
 /* --- Project Card Styles (within City Object) --- */
@@ -76,8 +88,8 @@
     border: 1px solid var(--board-space-border);
     border-radius: 5px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transition: none;
-    cursor: default;
+    transition: border-color 0.3s ease; 
+    cursor: default; 
     display: flex;
     flex-direction: column;
     height: 100%;
