@@ -81,10 +81,61 @@
     transition: opacity 0.5s ease-in-out 2s, visibility 0s linear 2.5s; /* Start fade after 2s */
 }
 
+/* --- Objectives Panel Styles --- */
+#objectives-panel {
+    background: rgba(30, 30, 40, 0.6);
+    border-top: 2px solid var(--quaternary-color);
+    border-radius: 8px 8px 0 0; /* Top corners rounded */
+    padding: 10px 15px;
+    margin: 20px auto 0; /* Position above profile container content */
+    max-width: 400px;
+    color: #ccc;
+    font-size: 0.9em;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+#objectives-panel h3 {
+    margin: 0 0 8px 0;
+    color: var(--quaternary-color);
+    font-size: 1.1em;
+    text-align: center;
+}
+
+#objectives-panel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#objectives-panel li {
+    margin-bottom: 5px;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+#objectives-panel li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+#objectives-panel li.completed {
+    text-decoration: line-through;
+    color: #888;
+    font-style: italic;
+}
+/* --- End Objectives Panel Styles --- */
+
+
 /* Responsive adjustments for notification */
 @media (max-width: 768px) {
     #notification-area {
         bottom: 85px; /* Adjust based on responsive HUD height */
+        font-size: 0.85em;
+    }
+    /* Adjust objectives panel width */
+     #objectives-panel {
+        max-width: 90%;
+        margin-top: 15px;
         font-size: 0.85em;
     }
 }

@@ -42,6 +42,17 @@
                 </div>
             </div>
         </main>
+
+        <!-- New Objectives Panel -->
+        <section id="objectives-panel">
+            <h3>Current Objectives</h3>
+            <ul id="objectives-list">
+                <!-- Objectives will be loaded here by JS -->
+                <li>Loading objectives...</li>
+            </ul>
+        </section>
+        <!-- End Objectives Panel -->
+
     </div>
 
     <!-- Game HUD -->
@@ -70,7 +81,7 @@
         document.addEventListener('DOMContentLoaded', async function() {
             try {
                 await initProfile(); // Initialize profile (fetches projects, displays board)
-                initGame();         // Then initialize game systems (sets up HUD)
+                initGame();         // Then initialize game systems (sets up HUD, objectives)
             } catch (error) {
                 console.error("Initialization failed:", error);
                 // Handle potential init failures (e.g., display error messages)

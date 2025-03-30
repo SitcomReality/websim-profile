@@ -1,5 +1,5 @@
 import { getPlayerState } from './playerState.js';
-import { updateHUD, setupIcons } from './gameUI.js';
+import { updateHUD, setupIcons, updateObjectivesDisplay } from './gameUI.js';
 import { startDayNightCycle, startRandomEvents, startResourceGeneration } from './simulation.js';
 
 function initGame() {
@@ -13,6 +13,9 @@ function initGame() {
 
     // Update the HUD with initial state
     updateHUD(initialState);
+
+    // New: Update the objectives display with initial state
+    updateObjectivesDisplay(initialState.completedObjectives);
 
     // Start the day/night cycle simulation
     startDayNightCycle();

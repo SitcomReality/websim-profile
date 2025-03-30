@@ -1,6 +1,8 @@
 import { getIcon } from './icons.js';
 import { getPlayerState, spendCoins, spendPaint, spendGrenade } from './playerState.js';
 import { generateBuildingInvestigationText } from '../api.js';
+// Import objectives data
+import { OBJECTIVES } from './objectives.js';
 
 // References to HUD elements
 const scoreEl = document.querySelector('#stat-score .value');
@@ -24,6 +26,8 @@ const inertiaIconEl = document.querySelector('#stat-inertia .icon');
 
 // Reference to Selected Building Info Panel element
 const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel');
+// Reference to Objectives List element
+const objectivesListEl = document.getElementById('objectives-list');
 
 // --- Constants ---
 const INVESTIGATION_COST = 10;
@@ -70,35 +74,25 @@ function setupInvestigationButtonListener() {
                 investigateButton.disabled = true;
                 investigateButton.textContent = 'Investigating...';
 
-                if (spendCoins(INVESTIGATION_COST)) { 
+                if (spendCoins(INVESTIGATION_COST)) {
                     try {
+                        // generateBuildingInvestigationText now handles objective check on success internally (via api.js -> playerState.js)
                         await generateBuildingInvestigationText(currentState.selectedBuildingData);
                     } catch (error) {
                         console.error("Investigation failed:", error);
-                        investigateButton.textContent = `Error (${INVESTIGATION_COST} Coins)`;
-                        investigateButton.classList.add('error');
-                        setTimeout(() => {
-                            investigateButton.classList.remove('error'); 
-                        }, 1500);
+                        // Re-enable button & show error state (handled in updateSelectedBuildingInfo)
                     } finally {
-                        const latestState = getPlayerState();
-                        updateSelectedBuildingInfo(latestState.selectedBuildingData);
+                         // updateSelectedBuildingInfo is called automatically by playerState update
+                        investigateButton.disabled = false; // Re-enable after attempt
                     }
                 } else {
                     console.warn("Coin spending failed unexpectedly after check.");
-                    investigateButton.textContent = `System Error`;
-                    investigateButton.disabled = false; 
+                    // Error state handled by updateSelectedBuildingInfo
                 }
 
             } else {
-                const originalText = investigateButton.textContent;
-                investigateButton.textContent = 'Not Enough Coins!';
-                investigateButton.classList.add('error');
-                setTimeout(() => {
-                    const latestState = getPlayerState();
-                    updateSelectedBuildingInfo(latestState.selectedBuildingData); 
-                    investigateButton.classList.remove('error'); 
-                }, 1500); 
+                // Not enough coins - feedback handled by updateSelectedBuildingInfo disabling button
+                console.log("Not enough coins to investigate.");
             }
         });
     }
@@ -116,36 +110,34 @@ function setupPaintButtonListener() {
             }
 
             if (currentState.paint >= PAINT_COST) {
-                paintButton.disabled = true;
+                paintButton.disabled = true; // Disable temporarily
                 paintButton.textContent = 'Painting...';
 
-                if (spendPaint(PAINT_COST)) { 
+                // spendPaint now handles objective check internally
+                if (spendPaint(PAINT_COST)) {
                     const buildingElement = document.querySelector(`.city-object[data-project-id="${currentState.selectedBuildingId}"]`);
                     if (buildingElement) {
                         buildingElement.classList.add('painted');
                         setTimeout(() => {
                             buildingElement.classList.remove('painted');
-                        }, 1000);
+                        }, 1000); // Animation duration
                     }
                     console.log(`Painted building ${currentState.selectedBuildingId}`);
-                    const latestState = getPlayerState();
-                    updateSelectedBuildingInfo(latestState.selectedBuildingData);
-
+                    // State updates automatically trigger UI refresh via playerState
                 } else {
-                    console.warn("Paint spending failed unexpectedly after check.");
-                    paintButton.textContent = `System Error`;
-                    paintButton.disabled = false; 
+                     console.warn("Paint spending failed unexpectedly after check.");
+                     // Error state handled by updateSelectedBuildingInfo
                 }
+                // Re-enable button (will be re-disabled by updateSelectedBuildingInfo if still unaffordable)
+                 setTimeout(() => { // Small delay to allow state update
+                     const latestState = getPlayerState();
+                     updateSelectedBuildingInfo(latestState.selectedBuildingData);
+                 }, 50);
+
 
             } else {
-                const originalText = paintButton.textContent;
-                paintButton.textContent = 'Not Enough Paint!';
-                paintButton.classList.add('error');
-                setTimeout(() => {
-                    const latestState = getPlayerState();
-                    updateSelectedBuildingInfo(latestState.selectedBuildingData); 
-                    paintButton.classList.remove('error'); 
-                }, 1500); 
+                // Not enough paint - feedback handled by updateSelectedBuildingInfo disabling button
+                console.log("Not enough paint.");
             }
         });
     }
@@ -163,49 +155,47 @@ function setupSabotageButtonListener() {
             }
 
             if (currentState.grenades >= SABOTAGE_COST) {
-                sabotageButton.disabled = true;
-                sabotageButton.textContent = 'Sabotaging...';
+                 sabotageButton.disabled = true; // Disable temporarily
+                 sabotageButton.textContent = 'Sabotaging...';
 
+                // spendGrenade now handles objective check internally
                 if (spendGrenade(SABOTAGE_COST)) {
                     const buildingElement = document.querySelector(`.city-object[data-project-id="${currentState.selectedBuildingId}"]`);
                     if (buildingElement) {
                         buildingElement.classList.add('sabotaged');
-                        buildingElement.style.animation = 'shake 0.5s ease-in-out forwards, popIn 0.5s ease forwards var(--animation-delay, 0s)';
+                        // Use a temporary class for the animation to avoid conflict with permanent sabotage state if needed later
+                        buildingElement.classList.add('is-shaking');
                         setTimeout(() => {
-                            buildingElement.classList.remove('sabotaged');
-                            buildingElement.style.animation = 'popIn 0.5s ease forwards var(--animation-delay, 0s)';
-                        }, 2000);
+                            buildingElement.classList.remove('sabotaged'); // Or manage this state differently if needed
+                             buildingElement.classList.remove('is-shaking');
+                        }, 2000); // Duration of visual effect
                     }
                     console.log(`Sabotaged building ${currentState.selectedBuildingId}`);
-                    const latestState = getPlayerState();
-                    updateSelectedBuildingInfo(latestState.selectedBuildingData);
-
+                     // State updates automatically trigger UI refresh via playerState
                 } else {
                     console.warn("Grenade spending failed unexpectedly after check.");
-                    sabotageButton.textContent = `System Error`;
-                    sabotageButton.disabled = false; 
+                     // Error state handled by updateSelectedBuildingInfo
                 }
+                 // Re-enable button (will be re-disabled by updateSelectedBuildingInfo if still unaffordable)
+                 setTimeout(() => { // Small delay to allow state update
+                     const latestState = getPlayerState();
+                     updateSelectedBuildingInfo(latestState.selectedBuildingData);
+                 }, 50);
 
             } else {
-                const originalText = sabotageButton.textContent;
-                sabotageButton.textContent = 'Not Enough Grenades!';
-                sabotageButton.classList.add('error');
-                setTimeout(() => {
-                    const latestState = getPlayerState();
-                    updateSelectedBuildingInfo(latestState.selectedBuildingData); 
-                    sabotageButton.classList.remove('error'); 
-                }, 1500); 
+                 // Not enough grenades - feedback handled by updateSelectedBuildingInfo disabling button
+                 console.log("Not enough grenades.");
             }
         });
     }
 }
 
-// Function to update the Selected Building Info Panel
+// --- Update Selected Building Info Panel ---
 function updateSelectedBuildingInfo(projectData) {
     if (!selectedBuildingInfoPanelEl) return;
 
     if (projectData) {
-        const currentState = getPlayerState();
+        const currentState = getPlayerState(); // Get latest state for cost checks
         const canAffordInvestigation = currentState.coins >= INVESTIGATION_COST;
         const canAffordPaint = currentState.paint >= PAINT_COST;
         const canAffordSabotage = currentState.grenades >= SABOTAGE_COST;
@@ -228,26 +218,62 @@ function updateSelectedBuildingInfo(projectData) {
                 </span>
             </div>
             <div class="actions">
-                <button id="investigate-button" ${!canAffordInvestigation ? 'disabled' : ''} title="${!canAffordInvestigation ? 'Not enough coins' : 'Investigate this building'}">
+                <button id="investigate-button" ${!canAffordInvestigation ? 'disabled' : ''} title="${!canAffordInvestigation ? 'Not enough coins' : `Investigate (${INVESTIGATION_COST} Coins)`}">
                     Investigate (${INVESTIGATION_COST} Coins)
                 </button>
-                <button id="paint-button" ${!canAffordPaint ? 'disabled' : ''} title="${!canAffordPaint ? 'Not enough paint' : 'Apply a coat of paint'}">
+                <button id="paint-button" ${!canAffordPaint ? 'disabled' : ''} title="${!canAffordPaint ? 'Not enough paint' : `Paint (${PAINT_COST} Paint)`}">
                     Paint (${PAINT_COST} Paint)
                 </button>
-                <button id="sabotage-button" ${!canAffordSabotage ? 'disabled' : ''} title="${!canAffordSabotage ? 'Not enough grenades' : 'Sabotage this building'}">
-                    Sabotage (${SABOTAGE_COST} Grenades)
+                <button id="sabotage-button" ${!canAffordSabotage ? 'disabled' : ''} title="${!canAffordSabotage ? 'Not enough grenades' : `Sabotage (${SABOTAGE_COST} Grenade)`}">
+                    Sabotage (${SABOTAGE_COST} Grenade)
                 </button>
                  <!-- More actions can be added here -->
             </div>
         `;
         selectedBuildingInfoPanelEl.classList.add('visible');
-        setupInvestigationButtonListener(); 
-        setupPaintButtonListener(); 
-        setupSabotageButtonListener(); 
+        // Re-attach listeners after innerHTML overwrite
+        setupInvestigationButtonListener();
+        setupPaintButtonListener();
+        setupSabotageButtonListener();
     } else {
         selectedBuildingInfoPanelEl.innerHTML = '<p>Select a building to see details.</p>';
         selectedBuildingInfoPanelEl.classList.remove('visible');
     }
 }
 
-export { updateHUD, setupIcons, updateSelectedBuildingInfo, INVESTIGATION_COST, PAINT_COST, SABOTAGE_COST };
+// --- Update Objectives Display ---
+function updateObjectivesDisplay(completedObjectives = []) {
+    if (!objectivesListEl) {
+        console.warn("Objectives list element not found.");
+        return;
+    }
+
+    objectivesListEl.innerHTML = ''; // Clear existing list
+
+    if (OBJECTIVES.length === 0) {
+        objectivesListEl.innerHTML = '<li>No objectives available yet.</li>';
+        return;
+    }
+
+    OBJECTIVES.forEach(obj => {
+        const li = document.createElement('li');
+        li.textContent = obj.description;
+        if (completedObjectives.includes(obj.id)) {
+            li.classList.add('completed');
+             li.title = 'Completed!';
+        } else {
+             li.title = `Reward: ${obj.reward.amount} ${obj.reward.type}`;
+        }
+        objectivesListEl.appendChild(li);
+    });
+}
+
+export {
+    updateHUD,
+    setupIcons,
+    updateSelectedBuildingInfo,
+    updateObjectivesDisplay, // Export new function
+    INVESTIGATION_COST,
+    PAINT_COST,
+    SABOTAGE_COST
+};

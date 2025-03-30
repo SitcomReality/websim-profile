@@ -10,12 +10,13 @@
     color: #ccc;
     font-size: 0.9em;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease, visibility 0s linear 0.3s; /* Delay visibility */
     opacity: 0; /* Hidden by default */
     transform: translateY(-10px);
     height: 0; /* Start collapsed */
     overflow: hidden;
     visibility: hidden;
+    min-height: 0; /* Ensure it can truly collapse */
 }
 
 #selected-building-info-panel.visible {
@@ -25,6 +26,7 @@
     min-height: 80px; /* Adjust if needed for content + button */
     visibility: visible;
     padding-bottom: 20px; /* Add padding for button */
+    transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease, visibility 0s linear 0s; /* Immediate visibility */
 }
 
 #selected-building-info-panel p:first-child {
@@ -79,6 +81,7 @@
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     gap: 10px;
+    flex-wrap: wrap; /* Allow buttons to wrap */
 }
 
 #selected-building-info-panel .actions button {

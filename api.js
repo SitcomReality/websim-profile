@@ -16,7 +16,7 @@ import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 import { CONTEXT_TERMS } from './context_terms.js';
 import { ADJECTIVE_TERMS } from './adjective_terms.js';
 import { NOUN_TERMS } from './noun_terms.js';
-import { getPlayerState, spendCoins } from './game-systems/playerState.js';
+import { getPlayerState, spendCoins, completeObjective } from './game-systems/playerState.js';
 
 function getRandomElement(arr) {
     if (!arr || arr.length === 0) return '';
@@ -65,11 +65,11 @@ async function generateAiText() {
 async function generateBuildingInvestigationText(buildingData) {
     if (!aiPromptEl || !aiResponseEl) {
         console.error("AI text elements not found for investigation.");
-        return; 
+        return;
     }
     if (!buildingData) {
          console.error("No building data provided for investigation.");
-         return; 
+         return;
     }
 
     console.log("Investigating building:", buildingData.title);
@@ -78,7 +78,7 @@ async function generateBuildingInvestigationText(buildingData) {
         const userPrompt = `You are investigating a building titled "${buildingData.title}". Its description is: "${buildingData.description}". Provide a short, intriguing, or perhaps slightly absurd observation or piece of fictional lore about this place based on its title and description. Keep it under 50 words.`;
 
         aiPromptEl.textContent = `Investigating: "${buildingData.title}"...`;
-        aiResponseEl.textContent = 'Scanning for anomalies...'; 
+        aiResponseEl.textContent = 'Scanning for anomalies...';
 
         const systemPrompt = `Provide a short, intriguing response to the user's investigation request. Be concise and imaginative. Use simple formatting like <b> or <i> if appropriate, but keep it brief.`;
 
@@ -94,13 +94,14 @@ async function generateBuildingInvestigationText(buildingData) {
         if (completion && completion.content) {
             aiPromptEl.textContent = `Investigation Result for: "${buildingData.title}"`;
             setAiResponse(completion.content);
+            completeObjective('investigate1');
         } else {
             throw new Error("AI did not return content for investigation.");
         }
 
     } catch (error) {
         console.error('Error generating investigation text:', error);
-        logError(error); 
+        logError(error);
         aiPromptEl.textContent = `Investigation Failed: "${buildingData.title}"`;
         aiResponseEl.textContent = 'Error retrieving data. Interference detected.';
         throw error; 
@@ -225,6 +226,11 @@ async function initProfile() {
         const user = await fetchUserProfile(PROFILE_USERNAME);
         usernameEl.textContent = user.username || 'Anonymous';
         descriptionEl.textContent = user.description || 'Face the farce.';
+        if (avatarEl && user.username) { 
+             avatarEl.src = `https://images.websim.ai/avatar/${user.username}`;
+             avatarEl.alt = `${user.username}'s Avatar`;
+        }
+
         const userIdForStats = user.id || PROFILE_USERNAME;
         const usernameForCounts = user.username || PROFILE_USERNAME;
         const usernameForProjects = user.username || PROFILE_USERNAME;
@@ -261,7 +267,7 @@ async function initProfile() {
 }
 
 async function logError(error) {
-    const timestamp = new Date().toISOString();
+     const timestamp = new Date().toISOString();
     if (error instanceof Error) {
         console.error(`[${timestamp}] Error: ${error.message}\nStack: ${error.stack}`);
     } else if (typeof error === 'string') {
