@@ -1,24 +1,45 @@
 import { getIcon } from './icons.js';
 // Import the function to update player state
 import { setSelectedBuilding, getPlayerState } from './playerState.js'; 
+import { updateSelectedBuildingInfo } from './gameUI.js'; 
 
 // --- DOM Elements ---
 const cityScapeEl = document.getElementById('city-scape');
-const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel'); 
+const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel');
 
-// Helper to generate HTML for a project card within a city object
-function createProjectCardHTML(project, project_revision, site) {
+// Helper to generate HTML for a 3D building based on project data
+function createBuildingHTML(project, project_revision, site) {
     const thumbnailUrl = project_revision.current_screenshot_url || (site ? `https://images.websim.ai/v1/site/${site.id}/600` : 'placeholder.png');
     const projectUrl = `https://websim.ai/p/${project.id}`;
     const displayUrl = site ? `https://websim.ai/c/${site.id}` : projectUrl;
     const views = project.stats?.views ?? 0;
     const likes = project.stats?.likes ?? 0;
     const comments = project.stats?.comments ?? 0;
+    const buildingId = project.id;
+
+    // Calculate a subtle color variation based on project ID for visual diversity
+    // Simple hash function to get a value between 0 and 1
+    let hash = 0;
+    for (let i = 0; i < buildingId.length; i++) {
+        hash = buildingId.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    const colorVariation = Math.abs(hash % 100) / 100; // Value 0 to 0.99
+
+    // Base color for sides/top - slightly darker than the board space bg
+    const baseSideColor = 'hsl(240, 10%, 15%)';
+    // Vary lightness based on hash
+    const sideLightness = 12 + (colorVariation * 10); // Range 12% to 22%
+    const topLightness = 20 + (colorVariation * 15); // Range 20% to 35%
+
+    const sideColor = `hsl(240, 10%, ${sideLightness.toFixed(0)}%)`;
+    const topColor = `hsl(240, 10%, ${topLightness.toFixed(0)}%)`;
+
 
     return `
-        <div class="project-card" data-project-id="${project.id}">
+        <div class="building-face building-face-front">
             <img src="${thumbnailUrl}" alt="${project.title || 'Project Thumbnail'}" class="project-thumbnail" loading="lazy" onerror="this.onerror=null; this.src='placeholder.png';">
-            <a href="${displayUrl}" target="_blank" class="project-link-button" title="Open Project/Site">
+             <a href="${displayUrl}" target="_blank" class="project-link-button" title="Open Project/Site" data-building-link="${buildingId}">
                 ${getIcon('externalLink')}
             </a>
             <div class="project-info">
@@ -42,6 +63,8 @@ function createProjectCardHTML(project, project_revision, site) {
                 </div>
             </div>
         </div>
+        <div class="building-face building-face-top" style="background-color: ${topColor};"></div>
+        <div class="building-face building-face-left" style="background-color: ${sideColor};"></div>
     `;
 }
 
@@ -104,12 +127,17 @@ async function displayCityScape(projectsData) {
         cityObjectDiv.dataset.comments = project.stats.comments ?? 0;
         cityObjectDiv.dataset.link = site ? `https://websim.ai/c/${site.id}` : `https://websim.ai/p/${project.id}`;
 
-        cityObjectDiv.innerHTML = createProjectCardHTML(project, project_revision, site);
+        // Generate the 3D building HTML
+        cityObjectDiv.innerHTML = createBuildingHTML(project, project_revision, site);
 
+        // Add click listener to the main city object, not just the card
         cityObjectDiv.addEventListener('click', (event) => {
-            if (event.target.closest('.project-link-button')) {
+            // Prevent selection if the external link button was clicked
+             if (event.target.closest('.project-link-button')) {
+                console.log("Link button clicked, preventing selection.");
                 return;
             }
+
             const clickedProjectId = cityObjectDiv.dataset.projectId;
             const projectData = {
                 id: clickedProjectId,
@@ -124,10 +152,10 @@ async function displayCityScape(projectsData) {
             setSelectedBuilding(clickedProjectId, projectData); 
 
             updateBuildingSelectionHighlight(getPlayerState().selectedBuildingId);
-
         });
 
         const views = project.stats.views ?? 0;
+        // Keep height calculation based on views for now
         const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5;
         const heightFactor = Math.max(0.6, Math.min(2.5, baseHeightFactor));
         cityObjectDiv.style.setProperty('--building-height-factor', heightFactor);
@@ -140,13 +168,8 @@ async function displayCityScape(projectsData) {
     if (initialState.selectedBuildingId) {
         updateBuildingSelectionHighlight(initialState.selectedBuildingId);
     }
-    if (window.updateSelectedBuildingInfo) { 
-         window.updateSelectedBuildingInfo(initialState.selectedBuildingData);
-    } else {
-         import('./gameUI.js').then(gameUI => {
-            gameUI.updateSelectedBuildingInfo(initialState.selectedBuildingData);
-         }).catch(e => console.error("Failed to load gameUI for initial info panel update:", e));
-    }
+    // Use the globally available update function
+    updateSelectedBuildingInfo(initialState.selectedBuildingData);
 }
 
-export { displayCityScape, updateBuildingSelectionHighlight }; 
+export { displayCityScape, updateBuildingSelectionHighlight };

@@ -15,14 +15,14 @@
 #city-container {
     width: 100%;
     overflow-x: auto;
-    padding: 20px 0 20px 20px;
+    padding: 20px 0 50px 20px; 
     margin-bottom: 20px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--secondary-color) var(--hud-bg);
     background: rgba(10, 10, 10, 0.4);
     border-radius: 10px;
-    perspective: 1000px;
+    perspective: 1200px; 
     box-sizing: border-box;
 }
 #city-container::-webkit-scrollbar {
@@ -44,132 +44,96 @@
     gap: 25px;
     padding: 15px 15px 15px 0; 
     transform-style: preserve-3d;
-    min-height: calc(var(--base-height, 180px) * 0.6 + 60px);
+    min-height: calc(var(--base-height, 180px) * 0.6 + 100px); 
     width: fit-content;
 }
 
+/* --- City Object (Building) --- */
 .city-object {
-    --base-height: 180px;
-    --building-height-factor: 1;
-    border-radius: 0;
-    width: 180px;
-    height: calc(var(--base-height) * var(--building-height-factor));
-    padding: 0;
+    --base-height: 180px; 
+    --building-height-factor: 1; 
+    --building-width: 180px;
+    --building-depth: 50px; 
+    --building-height: calc(var(--base-height) * var(--building-height-factor));
+
     position: relative;
-    overflow: visible;
-    opacity: 0;
+    width: var(--building-width);
+    height: var(--building-height);
+    transform-style: preserve-3d;
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg) translateY(-30px) translateZ(20px);
+    transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+    cursor: pointer;
+    opacity: 0; 
     animation: popIn 0.5s ease forwards;
     animation-delay: var(--animation-delay, 0s);
-    transform-style: preserve-3d;
-    transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px);
-    transition: transform 0.3s ease, height 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease; 
-    flex-shrink: 0;
-    cursor: pointer; 
 }
 
 .city-object:hover {
-    transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(40px) scale(1.05);
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg) translateY(-30px) translateZ(40px) scale3d(1.05, 1.05, 1.05); 
     filter: brightness(1.1);
 }
 
 .city-object.selected {
-    transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(50px) scale(1.08); 
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg) translateY(-30px) translateZ(50px) scale3d(1.08, 1.08, 1.08); 
     filter: brightness(1.2);
-    box-shadow: 0 0 20px 5px var(--primary-color); 
-    z-index: 10; 
-}
-.city-object.selected .project-card {
-    border-color: var(--primary-color); 
+    box-shadow: 0 0 20px 5px var(--primary-color);
+    z-index: 10;
 }
 
-.city-object.painted .project-card {
-    animation: paintFlash 1s ease-out;
-}
-
-@keyframes paintFlash {
-    0% { outline: 4px solid var(--secondary-color); outline-offset: 2px; }
-    100% { outline: 0px solid rgba(254, 202, 87, 0); outline-offset: 0px; } 
-}
-
-.city-object.sabotaged::before,
-.city-object.sabotaged::after,
-.city-object.sabotaged .project-card {
-    filter: grayscale(80%) contrast(1.2) brightness(0.7);
-    transition: filter 0.3s ease;
-}
-
-@keyframes shakeEffect {
-    0%, 100% { transform: translate(0, 0); } 
-    10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 0); }
-    20%, 40%, 60%, 80% { transform: translate(3px, 0); }
-}
-
-.city-object.is-shaking {
-    animation: shakeEffect 0.5s ease-in-out;
-}
-
-/* --- Project Card Styles (within City Object) --- */
-.project-card {
-    background-color: var(--board-space-bg);
-    border: 1px solid var(--board-space-border);
-    border-radius: 5px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transition: border-color 0.3s ease; 
-    cursor: default; 
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-    transform-style: preserve-3d;
-    transform: translateZ(0);
-}
-
-.project-card::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0));
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    transform-origin: bottom;
-    transform: rotateX(-90deg) translateY(-10px);
-    background-color: color-mix(in srgb, var(--board-space-bg) 80%, white);
-    border: 1px solid var(--board-space-border);
-    border-bottom: none;
-}
-
-.project-card::after {
-    content: '';
+/* --- Building Faces --- */
+.building-face {
     position: absolute;
     top: 0;
-    left: -10px;
-    width: 10px;
+    left: 0;
+    width: 100%;
     height: 100%;
-    background-color: color-mix(in srgb, var(--board-space-bg) 70%, black);
-    border-bottom-left-radius: 5px;
-    border-top-left-radius: 5px;
-    transform-origin: right;
-    transform: rotateY(90deg) translateX(-10px);
-    border: 1px solid var(--board-space-border);
-    border-right: none;
+    backface-visibility: hidden; 
+    border: 1px solid rgba(0,0,0,0.3); 
+    box-sizing: border-box;
+    overflow: hidden; 
 }
 
-.project-thumbnail {
+/* Front Face */
+.building-face-front {
+    width: var(--building-width);
+    height: var(--building-height);
+    transform: translateZ(calc(var(--building-depth) / 2));
+    background-color: var(--board-space-bg); 
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Face */
+.building-face-top {
+    width: var(--building-width);
+    height: var(--building-depth); 
+    transform: translateY(calc(var(--building-depth) / -2)) rotateX(90deg);
+    background-color: color-mix(in srgb, var(--board-space-bg) 80%, white); 
+}
+
+/* Left Face */
+.building-face-left {
+    width: var(--building-depth); 
+    height: var(--building-height);
+    transform: translateX(calc(var(--building-depth) / -2)) rotateY(-90deg);
+    background-color: color-mix(in srgb, var(--board-space-bg) 70%, black); 
+}
+
+
+/* --- Content within Front Face --- */
+/* Adapt existing project card styles to the front face */
+.building-face-front .project-thumbnail {
     width: 100%;
     flex-shrink: 0;
     height: auto;
-    max-height: 100px;
+    max-height: 100px; 
     object-fit: cover;
     display: block;
     border-bottom: 1px solid var(--board-space-border);
 }
 
-.project-link-button {
+.building-face-front .project-link-button {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -183,21 +147,21 @@
     color: var(--primary-color);
     text-decoration: none;
     transition: background-color 0.2s ease, transform 0.2s ease;
-    z-index: 2;
-    transform: translateZ(2px);
+    z-index: 2; 
+    transform: translateZ(2px); 
 }
-.project-link-button:hover {
+.building-face-front .project-link-button:hover {
     background-color: rgba(0, 0, 0, 0.9);
     transform: scale(1.1) translateZ(2px);
     color: var(--secondary-color);
 }
-.project-link-button svg {
+.building-face-front .project-link-button svg {
     width: 14px;
     height: 14px;
     fill: currentColor;
 }
 
-.project-info {
+.building-face-front .project-info {
     padding: 8px;
     flex-grow: 1;
     display: flex;
@@ -205,10 +169,10 @@
     justify-content: space-between;
     overflow: hidden;
     font-size: 0.8em;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.2); 
 }
 
-.project-info h3 {
+.building-face-front .project-info h3 {
     margin: 0 0 4px 0;
     color: var(--text-color);
     font-size: 1em;
@@ -217,7 +181,7 @@
     text-overflow: ellipsis;
 }
 
-.project-description {
+.building-face-front .project-description {
     font-size: 0.85em;
     color: #bbb;
     margin-bottom: 6px;
@@ -231,7 +195,7 @@
     min-height: 2.4em;
 }
 
-.project-stats {
+.building-face-front .project-stats {
     display: flex;
     justify-content: space-around;
     font-size: 0.8em;
@@ -242,22 +206,61 @@
     flex-shrink: 0;
 }
 
-.project-stats span {
+.building-face-front .project-stats span {
     display: inline-flex;
     align-items: center;
     gap: 3px;
 }
 
-.project-stats svg {
+.building-face-front .project-stats svg {
     width: 10px;
     height: 10px;
     margin-right: 0;
     fill: currentColor;
 }
 
+
+/* --- Visual Effects on Building --- */
+.city-object.painted .building-face-front {
+    animation: paintFlashFront 1s ease-out;
+}
+.city-object.painted .building-face-top,
+.city-object.painted .building-face-left {
+    animation: paintFlashSides 1s ease-out;
+}
+
+@keyframes paintFlashFront {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.5) saturate(1.5); }
+}
+@keyframes paintFlashSides {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; } 
+}
+
+.city-object.sabotaged .building-face { 
+    filter: grayscale(80%) contrast(1.2) brightness(0.7);
+    transition: filter 0.3s ease;
+}
+
+@keyframes shakeEffect { 
+    0%, 100% { transform: translate(0, 0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 0); }
+    20%, 40%, 60%, 80% { transform: translate(3px, 0); }
+}
+
+.city-object.is-shaking {
+    animation: shakeEffect 0.5s ease-in-out;
+}
+
+/* --- Pop-in Animation --- */
 @keyframes popIn {
-    to {
+    0% {
+        opacity: 0;
+        transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg) translateY(-30px) translateZ(20px) scale3d(0.5, 0.5, 0.5);
+    }
+    100% {
         opacity: 1;
-        transform: translateY(0) rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px);
+        transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg) translateY(-30px) translateZ(20px) scale3d(1, 1, 1);
     }
 }
