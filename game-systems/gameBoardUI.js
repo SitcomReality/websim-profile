@@ -35,6 +35,9 @@ function createBuildingHTML(project, project_revision, site) {
     const sideColor = `hsl(240, 10%, ${sideLightness.toFixed(0)}%)`;
     const topColor = `hsl(240, 10%, ${topLightness.toFixed(0)}%)`;
 
+    // Calculate width variation factor (Phase 7.4)
+    const widthVariationFactor = 0.85 + (colorVariation * 0.3); // Range 0.85 to 1.15
+
 
     return `
         <div class="building-face building-face-front">
