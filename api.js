@@ -165,7 +165,7 @@ async function fetchUserProjects(username) {
 }
 
 async function initProfile() {
-    const gameBoardEl = document.getElementById('game-board');
+    const gameBoardEl = document.getElementById('city-scape');
     try {
         console.log('Initializing profile...');
         if (!usernameEl || !descriptionEl) {

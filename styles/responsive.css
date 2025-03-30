@@ -1,7 +1,7 @@
 /* --- Responsive --- */
 
 @media (max-width: 1200px) {
-    #game-board {
+    #city-scape {
         grid-template-columns: repeat(6, minmax(180px, 1fr));
         min-width: calc(6 * 180px + 5 * 15px);
     }
@@ -9,7 +9,7 @@
 
 
 @media (max-width: 900px) {
-    #game-board {
+    #city-scape {
         grid-template-columns: repeat(5, minmax(170px, 1fr));
         min-width: calc(5 * 170px + 4 * 15px);
         gap: 12px;
@@ -96,7 +96,7 @@
         height: 100px;
     }
 
-    #game-board {
+    #city-scape {
         grid-template-columns: repeat(4, minmax(160px, 1fr)); 
         min-width: calc(4 * 160px + 3 * 10px);
         gap: 10px;
@@ -138,7 +138,7 @@
         font-size: 0.85em;
     }
 
-    #game-board {
+    #city-scape {
         grid-template-columns: repeat(3, minmax(140px, 1fr)); 
         min-width: calc(3 * 140px + 2 * 10px);
         gap: 8px;

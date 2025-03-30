@@ -2,7 +2,7 @@
 import { getIcon } from './icons.js';
 
 // --- DOM Elements ---
-const gameBoardEl = document.getElementById('game-board');
+const gameBoardEl = document.getElementById('city-scape');
 
 // --- Board/Project Display ---
 
