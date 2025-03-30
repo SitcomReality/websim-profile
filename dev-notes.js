@@ -6,93 +6,53 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-27 (Phase 1)
- * Updated: 2024-07-28 (Phase 2)
+ * Updated: 2024-07-29 (Phase 3 - Initial Visuals)
  */
 
-// --- Current State (Post-Phase 2 Implementation) ---
-// 1. HTML IDs and CSS selectors updated to "city" theme (`#city-container`, `#city-scape`, `.city-object`).
-// 2. CSS (`city-view.css`) updated:
-//    - Removed grid layout from `#city-scape`.
-//    - `.city-object` styled as `inline-block` with fixed dimensions.
-//    - Removed `.empty-space` styles.
-// 3. Rendering Logic (`gameBoardUI.js`):
-//    - Renamed `displayProjects` to `displayCityScape`.
-//    - Removed board distribution logic (32 slots, empty spaces).
-//    - Now iterates directly through project data and appends `.city-object` elements.
-//    - Removed dependency on grid index for animations (using simple iteration index).
-// 4. Related files (`api.js`, `responsive.css`, `index.html`) updated to reflect changes.
+// --- Current State (Post-Phase 3 - Initial Visuals) ---
+// 1. CSS (`city-view.css`) updated:
+//    - Added `perspective` to `#city-container`.
+//    - Added `transform-style: preserve-3d` to `#city-scape`.
+//    - Applied basic 3D transforms (`rotateX`, `translateZ`) to `.city-object` to give a simple "building block" appearance.
+//    - Used pseudo-elements (`::before`, `::after`) on `.project-card` to create basic "roof" and "depth" effects.
+//    - Adjusted internal layout (`.project-thumbnail`, `.project-info`) within `.city-object` to fit the pseudo-3D style. Thumbnail acts as front face, info as side/base.
+//    - Removed conflicting `border-flow` animation.
+// 2. `gameBoardUI.js` remains unchanged for this step.
+// 3. Related files (`api.js`, `responsive.css`, `index.html`) unchanged.
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
 // Phase 2: Basic City Layout (Completed)
-//    *Objective: Remove grid layout, render projects as distinct block elements.*
-//    *Status: Done. Projects render horizontally as simple blocks.*
+// Phase 3: Introducing City Visual Metaphor
+//    *Objective: Start making the project elements look less like cards and more like city features.*
+//    *Sub-step 1: Basic 3D Appearance (Completed)*
+//       - Added perspective and transforms.
+//       - Used pseudo-elements for basic depth/roof.
+//       - Rearranged internal card layout.
+//    *Sub-step 2: Dynamic Sizing/Styling (Next)*
+//       - **JS (`gameBoardUI.js`):** Pass project stats (e.g., views) to CSS via inline style variable (e.g., `--building-height-factor`).
+//       - **CSS (`city-view.css`):** Use the variable (`--building-height-factor`) to adjust `height` or `transform: scaleY` of `.city-object` or its pseudo-elements.
 
 // --- Next Steps ---
 
-// **Phase 3: Introducing City Visual Metaphor**
-//    *Objective: Start making the project elements look less like cards and more like city features.*
-//    1.  **CSS Enhancements (`city-view.css`):**
-//        -   Experiment with basic 3D perspective on `#city-container` and transforms on `.city-object` (e.g., `transform: skewX/Y`, `perspective`, `rotateX`).
-//        -   Use pseudo-elements (`::before`, `::after`) on `.city-object` to simulate building tops, depth, or roads/foundations.
-//        -   Vary dimensions (width/height) or styles of `.city-object` based on project stats (requires passing stats data or calculating in JS). Start simply (e.g., height proportional to views/likes).
-//        -   Adjust layout *within* `.city-object` (thumbnail, info) to fit the new visual style. Maybe thumbnail becomes the "roof"? Info could overlay or be a "lower floor".
-//    2.  **JS Enhancements (`gameBoardUI.js`):**
-//        -   Pass necessary stats to CSS via inline styles (e.g., `--project-height-factor`) or data attributes if varying dimensions/styles per project.
+// **Phase 3: Introducing City Visual Metaphor (Continued)**
+//    *Objective: Make buildings vary based on data.*
+//    1.  **JS Enhancements (`gameBoardUI.js`):**
+//        -   In `createProjectCardHTML` or the loop in `displayCityScape`, calculate a factor based on project stats (e.g., `log(views + 1)`).
+//        -   Add this factor as an inline style variable to the `.city-object` div: `cityObjectDiv.style.setProperty('--building-height-factor', calculatedFactor);`.
+//    2.  **CSS Enhancements (`city-view.css`):**
+//        -   Modify the `height` or apply `transform: scaleY(var(--building-height-factor))` to `.city-object` or `.project-card` to make buildings visually different heights.
+//        -   Adjust pseudo-elements if necessary to scale correctly with height changes.
 
 // **Phase 4: Improving Layout & Responsiveness**
-//    *Objective: Create a more deliberate city layout and ensure usability on different screens.*
-//    1.  **Layout Strategy:** Choose a layout method for `#city-scape`:
-//        -   **Flexbox/Grid (Rows):** Arrange buildings into rows with wrapping.
-//        -   **Absolute Positioning:** Calculate X/Y coordinates for each `.city-object` based on project data (date, stats) or a packing algorithm. Requires careful handling of overlaps and container sizing. Introduces need for pan/zoom.
-//        -   **SVG:** Render the city within an SVG for scaling/zooming. Larger refactor.
-//    2.  **Responsiveness (`responsive.css`):**
-//        -   Adapt layout strategy for different screen sizes. Pan/zoom might become necessary.
+//    *Objective: Create a more deliberate city layout and ensure usability.*
+//    1.  **Layout Strategy:** Choose and implement a layout (Flexbox wrap, Absolute positioning, etc.).
+//    2.  **Responsiveness (`responsive.css`):** Adapt layout and potentially add pan/zoom.
 
 // **Phase 5 & Beyond: Interactivity & Simulation**
 //    *Objective: Add player interaction, movement, simulated elements.*
-//    1.  Click/Hover Interactions on `.city-object`.
+//    1.  Click/Hover Interactions.
 //    2.  Player Representation & Movement.
-//    3.  Simulated Entities (NPCs, vehicles).
-//    4.  Refined State Management.
+//    3.  Simulated Entities.
 
-// --- Proposed File/Directory Structure (Still relevant for future phases) ---
-/*
-/
-├── index.html
-├── style.css
-├── config.js
-├── script.js
-├── api.js
-├── ui.js
-├── dev-notes.js          # This file
-├── assets/
-│   └── SITCOMREALITYLOGO.jpg
-├── styles/
-│   ├── base.css
-│   ├── profile.css
-│   ├── ai-text.css
-│   ├── city-view.css
-│   ├── game-hud.css
-│   └── responsive.css
-├── game-systems/
-│   ├── core/
-│   │   ├── gameManager.js
-│   │   └── playerState.js
-│   ├── ui/
-│   │   ├── gameBoardUI.js   # <-- Renders city scape (consider renaming folder/file later?)
-│   │   ├── gameUI.js        # <-- Updates HUD
-│   │   └── icons.js
-│   ├── entities/           # (Future)
-│   ├── interactions/       # (Future)
-│   └── utilities/          # (Future)
-├── data/
-│   ├── context_terms.js
-│   ├── noun_terms.js
-│   └── adjective_terms.js
-└── lib/                  # (Future)
-
-*/
-
-console.log("Developer notes loaded. Review the proposed changes and structure. Phase 2 completed, ready for Phase 3.");
+console.log("Developer notes loaded. Phase 3 initial visuals implemented. Ready for dynamic sizing based on stats.");

@@ -15,13 +15,14 @@
 #city-container {
     width: 100%;
     overflow-x: auto;
-    padding: 10px 0;
+    padding: 40px 0 60px;
     margin-bottom: 20px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--secondary-color) var(--hud-bg);
     background: rgba(10, 10, 10, 0.4);
     border-radius: 10px;
+    perspective: 1000px;
 }
 #city-container::-webkit-scrollbar {
     height: 8px;
@@ -40,31 +41,38 @@
     display: block;
     white-space: nowrap;
     padding: 15px;
+    transform-style: preserve-3d;
 }
 
 .city-object {
-    background-color: var(--board-space-bg);
-    border: 1px solid var(--board-space-border);
-    border-radius: 8px;
+    border-radius: 0;
     display: inline-block;
-    vertical-align: top;
-    width: 200px;
-    height: 250px;
-    margin: 0 10px 10px 0;
+    vertical-align: bottom;
+    width: 180px;
+    height: 200px;
+    margin: 0 25px 10px 0;
     padding: 0;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     opacity: 0;
     transform: translateY(20px);
     animation: popIn 0.5s ease forwards;
     animation-delay: var(--animation-delay, 0s);
+    transform-style: preserve-3d;
+    transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px);
+    transition: transform 0.3s ease;
+}
+
+.city-object:hover {
+    transform: rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(40px) scale(1.05);
 }
 
 /* --- Project Card Styles (within City Object) --- */
 .project-card {
-    background: none;
-    border-radius: 0;
-    box-shadow: none;
+    background-color: var(--board-space-bg);
+    border: 1px solid var(--board-space-border);
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     transition: none;
     cursor: default;
     display: flex;
@@ -73,24 +81,46 @@
     width: 100%;
     position: relative;
     overflow: hidden;
+    transform-style: preserve-3d;
+    transform: translateZ(0);
 }
 
 .project-card::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: -10px;
     left: 0;
     width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--tertiary-color));
-    background-size: 300% 100%;
-    animation: border-flow 6s linear infinite;
-    z-index: 1;
+    height: 10px;
+    background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0));
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    transform-origin: bottom;
+    transform: rotateX(-90deg) translateY(-10px);
+    background-color: color-mix(in srgb, var(--board-space-bg) 80%, white);
+    border: 1px solid var(--board-space-border);
+    border-bottom: none;
+}
+
+.project-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: 10px;
+    height: 100%;
+    background-color: color-mix(in srgb, var(--board-space-bg) 70%, black);
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    transform-origin: right;
+    transform: rotateY(90deg) translateX(-10px);
+    border: 1px solid var(--board-space-border);
+    border-right: none;
 }
 
 .project-thumbnail {
     width: 100%;
-    height: 120px;
+    height: 100px;
     object-fit: cover;
     display: block;
     border-bottom: 1px solid var(--board-space-border);
@@ -98,11 +128,11 @@
 
 .project-link-button {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 28px;
-    height: 28px;
-    background-color: rgba(0, 0, 0, 0.6);
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -111,58 +141,60 @@
     text-decoration: none;
     transition: background-color 0.2s ease, transform 0.2s ease;
     z-index: 2;
+    transform: translateZ(2px);
 }
 .project-link-button:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1) translateZ(2px);
     color: var(--secondary-color);
 }
 .project-link-button svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     fill: currentColor;
 }
 
 .project-info {
-    padding: 10px;
+    padding: 8px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
-    font-size: 0.9em;
+    font-size: 0.8em;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .project-info h3 {
-    margin: 0 0 5px 0;
+    margin: 0 0 4px 0;
     color: var(--text-color);
-    font-size: 1.1em;
+    font-size: 1em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .project-description {
-    font-size: 0.9em;
-    color: #ccc;
-    margin-bottom: 8px;
-    line-height: 1.3;
+    font-size: 0.85em;
+    color: #bbb;
+    margin-bottom: 6px;
+    line-height: 1.2;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     flex-grow: 1;
-    min-height: 2.6em;
+    min-height: 2.4em;
 }
 
 .project-stats {
     display: flex;
     justify-content: space-around;
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: #a0a0a0;
     border-top: 1px solid var(--board-space-border);
-    padding-top: 8px;
+    padding-top: 6px;
     margin-top: auto;
 }
 
@@ -173,8 +205,8 @@
 }
 
 .project-stats svg {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     margin-right: 0;
     fill: currentColor;
 }
@@ -182,6 +214,6 @@
 @keyframes popIn {
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px);
     }
 }
