@@ -1,25 +1,29 @@
 /* --- Responsive --- */
 
 @media (max-width: 1200px) {
-    /* Remove grid-specific city-scape styles */
+    /* Adjustments for medium-large screens */
+    #city-scape {
+        gap: 20px; /* Slightly reduce gap */
+    }
     .city-object {
-       width: 190px;
-       height: 240px;
+       width: 170px; /* Slightly smaller buildings */
+       --base-height: 170px; /* Adjust base height */
     }
 }
 
 
 @media (max-width: 900px) {
-    /* Remove grid-specific city-scape styles */
-    #city-scape {
-        gap: 12px; /* Keep gap if using flex/grid later, harmless now */
-        padding: 12px; /* Adjust padding */
+    #city-container {
+        padding: 15px 0 15px 15px; /* Adjust padding */
     }
-    .city-object { /* Renamed from .board-space */
-        width: 180px;
-        height: 230px;
-        border-radius: 6px;
-        margin: 0 8px 8px 0;
+    #city-scape {
+        gap: 15px; /* Reduce gap */
+        padding-right: 15px; /* Ensure padding on right */
+    }
+    .city-object {
+        width: 160px; /* Smaller buildings */
+        --base-height: 160px; /* Adjust base height */
+        /* Keep 3D transform */
     }
     .project-info {
         padding: 8px;
@@ -38,7 +42,7 @@
         width: 14px;
         height: 14px;
     }
-    /* --- HUD stays the same --- */
+    /* --- HUD --- */
     #player-stats-container {
         gap: 10px;
         justify-content: flex-start;
@@ -100,26 +104,26 @@
         height: 100px;
     }
 
-    /* Remove grid-specific city-scape styles */
-    #city-scape {
-        padding: 10px;
-        gap: 10px; /* Keep gap if using flex/grid later */
+    #city-container {
+        padding: 10px 0 10px 10px; /* Adjust padding */
     }
-    .city-object { /* Renamed from .board-space */
-        width: 160px;
-        height: 210px;
-        border-radius: 5px;
-        margin: 0 6px 6px 0;
+    #city-scape {
+        padding-right: 10px;
+        gap: 12px; /* Further reduce gap */
+    }
+    .city-object {
+        width: 145px; /* Smaller buildings */
+        --base-height: 145px; /* Adjust base height */
+        /* Keep 3D transform */
     }
     .project-thumbnail {
-        height: 100px;
+        max-height: 80px; /* Adjust thumbnail */
     }
 
-    /* --- HUD stays the same --- */
+    /* --- HUD --- */
     #game-hud {
         padding: 5px 10px;
     }
-
     #player-stats-container {
         font-size: 0.8em;
         justify-content: space-around;
@@ -148,18 +152,20 @@
         font-size: 0.85em;
     }
 
-    /* Remove grid-specific city-scape styles */
-    #city-scape {
-        padding: 8px;
-        gap: 8px; /* Keep gap if using flex/grid later */
+    #city-container {
+        padding: 8px 0 8px 8px; /* Adjust padding */
     }
-    .city-object { /* Renamed from .board-space */
-       width: 140px;
-       height: 190px;
-       margin: 0 5px 5px 0;
+    #city-scape {
+        padding-right: 8px;
+        gap: 10px; /* Smallest gap */
+    }
+    .city-object {
+       width: 130px; /* Smallest buildings */
+       --base-height: 130px; /* Adjust base height */
+       /* Keep 3D transform */
     }
      .project-thumbnail {
-        height: 80px;
+        max-height: 70px; /* Adjust thumbnail */
     }
     .project-info {
         font-size: 0.8em;
@@ -173,7 +179,7 @@
         height: 10px;
     }
 
-    /* --- HUD stays the same --- */
+    /* --- HUD --- */
     #game-hud {
         padding: 3px 5px;
     }

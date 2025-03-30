@@ -6,49 +6,44 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-29 (Phase 3 Complete)
+ * Updated: 2024-07-29 (Phase 4 Complete)
  */
 
-// --- Current State (Post-Phase 3 - Dynamic Visuals) ---
+// --- Current State (Post-Phase 4 - Flexbox Layout) ---
 // 1. CSS (`city-view.css`):
-//    - `.city-object` height is now controlled by a CSS variable `--building-height-factor`.
-//    - Added `--base-height` variable for clarity.
-//    - Added `height` to transition property for `.city-object`.
-//    - Adjusted `.project-card` to take `height: 100%`.
-//    - Adjusted thumbnail height logic slightly.
-// 2. `gameBoardUI.js`:
-//    - Calculates `--building-height-factor` based on project views (log-scaled and clamped).
-//    - Sets the CSS variable on each `.city-object` element during creation.
-// 3. Related files (`api.js`, `responsive.css`, `index.html`) unchanged.
+//    - `#city-scape` now uses `display: flex; align-items: flex-end; gap: ...;` for layout.
+//    - Removed `white-space: nowrap;` from container and `inline-block` etc. from items.
+//    - Added `flex-shrink: 0;` to `.city-object`.
+//    - Adjusted padding on `#city-container` and `#city-scape`.
+// 2. CSS (`responsive.css`):
+//    - Updated media queries to adjust `.city-object` width, `--base-height`, and `#city-scape` gap.
+//    - Maintained horizontal scrolling behavior via flexbox.
+// 3. Related files (`api.js`, `gameBoardUI.js`, `index.html`) unchanged.
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
 // Phase 2: Basic City Layout (Completed)
-// Phase 3: Introducing City Visual Metaphor
-//    *Objective: Start making the project elements look less like cards and more like city features.*
-//    *Sub-step 1: Basic 3D Appearance (Completed)*
-//    *Sub-step 2: Dynamic Sizing/Styling (Completed)*
-//       - JS now calculates and passes `--building-height-factor`.
-//       - CSS now uses this variable to adjust `.city-object` height.
+// Phase 3: Introducing City Visual Metaphor (Completed)
+// Phase 4: Improving Layout & Responsiveness (Completed)
+//    *Objective: Create a more deliberate city layout and ensure usability on different screen sizes.*
+//    *Action: Switched to Flexbox layout, adjusted responsive styles.*
 
 // --- Next Steps ---
 
-// **Phase 4: Improving Layout & Responsiveness**
-//    *Objective: Create a more deliberate city layout and ensure usability on different screen sizes.*
-//    1.  **Layout Strategy:**
-//        -   Currently uses `display: inline-block` and `white-space: nowrap`, which is simple but limited.
-//        -   **Proposal:** Switch `#city-scape` to use Flexbox (`display: flex`, `flex-wrap: wrap` or `flex-wrap: nowrap` if scrolling is preferred) or CSS Grid for more control over spacing and arrangement. Flexbox with `nowrap` maintains the horizontal scroll but allows better alignment (`align-items: flex-end`).
-//        -   **Action:** Update `#city-scape` in `city-view.css` to use `display: flex; align-items: flex-end;`. Remove `white-space: nowrap;` and `display: inline-block` from `.city-object`. Adjust margins/padding as needed.
-//    2.  **Responsiveness (`responsive.css`):**
-//        -   Review the current responsive breakpoints.
-//        -   Adjust `.city-object` `width`, `--base-height`, and margins/gaps for smaller screens.
-//        -   Consider if horizontal scrolling is still the best approach on mobile or if wrapping (flex-wrap: wrap) is better. Horizontal scrolling might be okay given the 3D perspective.
-//        -   **Action:** Modify media queries in `responsive.css` to adjust city object sizes and spacing. Keep horizontal scrolling for now.
+// **Phase 5: Interactivity & Simulation (Beginnings)**
+//    *Objective: Start adding player interaction and basic simulated elements.*
+//    1.  **Click/Hover Interactions:**
+//        -   *Current:* Hover slightly lifts the building (`.city-object`). Link button works.
+//        -   *Proposal:* Add distinct visual feedback when a building is 'selected' or interacted with beyond just hover/linking. Could involve changing border color, adding an overlay, or triggering a small animation on the `.project-card` itself.
+//        -   *Action (Example):* Add a `.selected` class in CSS. In JS (`gameBoardUI.js` or a new interaction module), add event listeners to `.city-object` or `.project-card` to toggle this class on click. Prevent the link click if a different interaction is intended.
+//    2.  **Player Representation & Movement (Conceptual):**
+//        -   How will the player be represented? (An avatar? A highlighted focus? A separate element?)
+//        -   How will they move? (Clicking buildings? Arrow keys? Dragging the view?)
+//        -   *Action (Minimal Start):* Introduce a concept of a 'current location' or 'selected building' in the player state (`playerState.js`) and update it based on interaction (e.g., clicking a building). The UI (`gameUI.js` or `gameBoardUI.js`) can then visually reflect this state (e.g., highlighting the selected building).
+//    3.  **Simulated Elements (Conceptual):**
+//        -   What kind of simulation? (Time passing? NPCs? Resource generation based on projects?)
+//        -   *Action (Minimal Start):* Add a simple time cycle (e.g., update something in `gameManager.js` using `setInterval`) that perhaps modifies a global visual element (like background gradient) or triggers a very simple log message.
 
-// **Phase 5 & Beyond: Interactivity & Simulation**
-//    *Objective: Add player interaction, movement, simulated elements.*
-//    1.  Click/Hover Interactions.
-//    2.  Player Representation & Movement.
-//    3.  Simulated Entities.
+// **Focus for next step:** Implement basic 'selection' state (Phase 5.1). Add a `selectedBuildingId` to `playerState.js`. Update `gameBoardUI.js` to add click listeners to city objects that call a new function in `playerState.js` to set the selected ID. Update `gameBoardUI.js` or `gameUI.js` to visually reflect the selected state (e.g., adding/removing a CSS class).
 
-console.log("Developer notes loaded. Phase 3 dynamic sizing implemented. Ready for Phase 4 layout improvements.");
+console.log("Developer notes loaded. Phase 4 Flexbox layout implemented. Ready for Phase 5 interaction beginnings.");
