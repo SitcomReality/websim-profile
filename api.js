@@ -6,13 +6,12 @@ import {
     followingCountEl,
     likesCountEl,
     viewsCountEl,
-    gameBoardEl,
-    displayProjects,
     aiPromptEl,
     aiResponseEl,
     setAiResponse,
     setupRefreshAiButton
 } from './ui.js';
+import { displayProjects } from './game-systems/gameBoardUI.js';
 import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 import { CONTEXT_TERMS } from './context_terms.js';
 import { ADJECTIVE_TERMS } from './adjective_terms.js';
@@ -147,7 +146,6 @@ async function fetchUserProjects(username) {
     try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), API_TIMEOUT + 2000);
-        // Fetch more projects in case some are invalid later, adjust limit as needed
         const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=50`, {
             signal: controller.signal
         });
@@ -157,35 +155,34 @@ async function fetchUserProjects(username) {
         }
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        // Filter out entries without project or revision before passing to display
         const validProjects = data.projects.data.filter(p => p.project && p.project_revision);
         displayProjects(validProjects);
     } catch (error) {
         logError(error);
-        if (gameBoardEl) gameBoardEl.innerHTML = '<p>Error loading projects.</p>'; // Updated element reference
+        console.error("Error rendering game board through gameBoardUI.js");
         throw new Error(`Failed to fetch user projects: ${error.message}`);
     }
 }
 
 async function initProfile() {
+    const gameBoardEl = document.getElementById('game-board');
     try {
         console.log('Initializing profile...');
         if (!usernameEl || !descriptionEl) {
            throw new Error("Core profile UI elements not found.");
         }
         usernameEl.textContent = 'Loading...';
-        if (gameBoardEl) gameBoardEl.innerHTML = '<p>Loading board...</p>'; // Initial board message
+        if (gameBoardEl) gameBoardEl.innerHTML = '<p>Loading board...</p>';
 
         const user = await fetchUserProfile(PROFILE_USERNAME);
         usernameEl.textContent = user.username || 'Anonymous';
         descriptionEl.textContent = user.description || 'Face the farce.';
-        // Use user.id if available for stats/follows, fallback to username
         const userIdForStats = user.id || PROFILE_USERNAME;
         const usernameForProjects = user.username || PROFILE_USERNAME;
 
         await Promise.allSettled([
             fetchUserStats(userIdForStats),
-            fetchFollowCounts(usernameForProjects), // Follow counts use username
+            fetchFollowCounts(usernameForProjects),
             fetchUserProjects(usernameForProjects),
             generateAiText()
         ]);
@@ -204,15 +201,13 @@ async function initProfile() {
          if (followingCountEl) followingCountEl.textContent = 'N/A';
          if (likesCountEl) likesCountEl.textContent = 'N/A';
          if (viewsCountEl) viewsCountEl.textContent = 'N/A';
-         if (gameBoardEl && gameBoardEl.innerHTML.includes('Loading board...')) { // Updated element reference
+         if (gameBoardEl && gameBoardEl.innerHTML.includes('Loading board...')) {
              gameBoardEl.innerHTML = '<p>Failed to load game board.</p>';
          }
          if (aiResponseEl && aiResponseEl.textContent === 'Thinking...') {
              if (aiPromptEl) aiPromptEl.textContent = 'AI Unavailable';
              aiResponseEl.textContent = 'Could not connect.';
          }
-         // Don't re-throw here, let the page load partially
-         // throw error;
     }
 }
 
