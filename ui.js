@@ -38,6 +38,18 @@ function setupRefreshAiButton() {
     }
 }
 
+// Function to trigger visual effects (like screen shake)
+function triggerVisualEffect(effectClass, duration = 500) {
+    const targetElement = document.body; // Apply to body for screen shake
+    if (!targetElement) return;
+
+    targetElement.classList.add(effectClass);
+    setTimeout(() => {
+        targetElement.classList.remove(effectClass);
+    }, duration);
+}
+
+
 document.addEventListener('DOMContentLoaded', setupRefreshAiButton);
 
 export {
@@ -52,5 +64,6 @@ export {
     aiResponseEl,
     refreshAiButtonEl,
     setAiResponse,
-    setupRefreshAiButton
+    setupRefreshAiButton,
+    triggerVisualEffect 
 };

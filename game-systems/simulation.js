@@ -1,8 +1,14 @@
-// New file
+import { changeHp } from './playerState.js'; // Add import for changeHp
+import { triggerVisualEffect } from '../ui.js'; // Import visual effect trigger
+
 const CYCLE_DURATION = 30000; // 30 seconds for a full day-night cycle
 const MAX_OPACITY = 0.4; // How dark the overlay gets at night
+const EVENT_CHECK_INTERVAL = 15000; // Check for random events every 15 seconds
+const REALITY_TREMOR_CHANCE = 0.15; // 15% chance per interval
+const HP_LOSS_AMOUNT = -2; // HP lost during a tremor
 
 let cycleInterval = null;
+let eventInterval = null;
 
 function updateSkyOpacity() {
     const now = Date.now();
@@ -14,6 +20,16 @@ function updateSkyOpacity() {
 
     // Set the CSS variable on the body
     document.body.style.setProperty('--sky-overlay-opacity', opacity.toFixed(3));
+}
+
+function checkForRandomEvents() {
+    console.log("Checking for random events..."); // Debug log
+    if (Math.random() < REALITY_TREMOR_CHANCE) {
+        console.log("Reality Tremor triggered!");
+        changeHp(HP_LOSS_AMOUNT);
+        triggerVisualEffect('screenShake'); // Use the imported function
+        // Consider adding a small notification message later
+    }
 }
 
 function startDayNightCycle() {
@@ -37,4 +53,21 @@ function stopDayNightCycle() {
     }
 }
 
-export { startDayNightCycle, stopDayNightCycle };
+function startRandomEvents() {
+    console.log("Starting random event checks...");
+    if (eventInterval) {
+        clearInterval(eventInterval);
+    }
+    // Don't check immediately, wait for the first interval
+    eventInterval = setInterval(checkForRandomEvents, EVENT_CHECK_INTERVAL);
+}
+
+function stopRandomEvents() {
+    if (eventInterval) {
+        clearInterval(eventInterval);
+        eventInterval = null;
+        console.log("Random event checks stopped.");
+    }
+}
+
+export { startDayNightCycle, stopDayNightCycle, startRandomEvents, stopRandomEvents };

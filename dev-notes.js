@@ -6,24 +6,24 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-31 (Phase 5.8 Complete)
+ * Updated: 2024-07-31 (Phase 5.9 Complete)
  */
 
-// --- Current State (Post-Phase 5.8 - Sabotage Action) ---
-// 1. `gameUI.js`:
-//    - Added `SABOTAGE_COST` constant.
-//    - Added "Sabotage" button template to `updateSelectedBuildingInfo`, checking grenade cost.
-//    - Added `setupSabotageButtonListener`.
-//    - Listener checks grenade cost, calls `spendGrenade` (from `playerState`).
-//    - Applies `.sabotaged` class and a shake animation (`style.animation`) to the target `.city-object` for visual feedback.
-//    - Removes class/resets animation after a timeout.
-//    - Handles insufficient funds.
-// 2. `playerState.js`:
-//    - Added `spendGrenade` function and exported it.
-//    - Updated logic in `updatePlayerState` to refresh the selected building panel if grenade count changes while a building is selected.
-// 3. `styles/city-view.css`:
-//    - Added `.sabotaged` style (grayscale/contrast filter on card elements).
-//    - Added `@keyframes shake` for the sabotage animation.
+// --- Current State (Post-Phase 5.9 - Random HP Loss Event) ---
+// 1. `simulation.js`:
+//    - Added `EVENT_CHECK_INTERVAL`, `REALITY_TREMOR_CHANCE`, `HP_LOSS_AMOUNT`.
+//    - Added `checkForRandomEvents` function triggered by `setInterval` in `startRandomEvents`.
+//    - `checkForRandomEvents` checks probability, calls `changeHp` (from `playerState`), and calls `triggerVisualEffect('screenShake')` (from `ui.js`).
+//    - Added `startRandomEvents` and `stopRandomEvents` functions.
+// 2. `gameManager.js`:
+//    - Imports `startRandomEvents` from `simulation.js`.
+//    - Calls `startRandomEvents()` during `initGame()`.
+// 3. `ui.js`:
+//    - Added `triggerVisualEffect` function to add/remove CSS classes (like `screen-shake`) to the body element. Exported this function.
+// 4. `styles/base.css`:
+//    - Added `@keyframes screenShake`.
+//    - Added `.screen-shake` class to apply the animation.
+// 5. `playerState.js`: No changes needed for this step (`changeHp` already existed and was exported).
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
@@ -36,31 +36,28 @@
 //    5.3: Simple Day/Night Cycle (Completed)
 //    5.4: Selected Building Info Panel (Completed)
 //    5.5: Building Actions - "Investigate" (Completed)
-//    5.6: Refine Investigation Feedback (Deferred - Current system is functional)
+//    5.6: Refine Investigation Feedback (Deferred)
 //    5.7: Building Actions - "Paint" (Completed)
-//    5.8: Building Actions - "Sabotage" (Completed - Basic visual effect)
+//    5.8: Building Actions - "Sabotage" (Completed)
+//    5.9: Integrate Player HP - Random Events (Completed - Basic implementation)
 
 // --- Next Steps ---
 
 // **Phase 5 Continued: Interactivity & Simulation**
-//    *Objective: Integrate player stats more meaningfully, potentially add random events.*
-//    5.9 **Integrate Player HP:**
-//        - *Current:* HP exists in `playerState` but isn't affected by anything.
-//        - *Proposal:*
-//            - Option A: Link failed Sabotage (or other future risky actions) to HP loss. (Requires adding failure chance to actions).
-//            - Option B: Introduce simple random events (e.g., occasionally a popup: "Minor reality tremor! -2 HP").
-//            - Option C: Add a "Rest" action (maybe costs Coins or time?) to recover HP.
-//        - *Action (Focus on Option B for initial implementation):*
-//            a. Create a simple event system (e.g., in `simulation.js` or a new `events.js`).
-//            b. Set up a `setInterval` to occasionally trigger a random event check.
-//            c. Define a simple "HP loss" event.
-//            d. When triggered, call `changeHp` from `playerState.js`.
-//            e. Add simple visual feedback (e.g., brief screen shake, message in a temporary notification area?).
-//    5.10 **Building Stats (Conceptual):**
-//        - *Current:* Buildings only have display stats (views, likes).
-//        - *Proposal:* Give buildings internal stats (e.g., "Integrity" or "HP") that actions like "Sabotage" could affect. "Upgrade" action could increase them.
-//        - *Action:* Defer until core player loop is more established.
+//    *Objective: Enhance feedback and potentially add more complex events.*
+//    5.10 **Refine HP Loss Feedback:**
+//         - *Current:* Only screen shake.
+//         - *Proposal:* Add a small, temporary notification message on screen when HP is lost (e.g., "Reality Tremor! -2 HP").
+//         - *Action:*
+//             a. Create a dedicated notification area in `index.html`.
+//             b. Style the notification area in CSS (e.g., `styles/game-hud.css` or `styles/base.css`).
+//             c. Modify `ui.js` to add a `showNotification(message)` function that adds text to the area and fades it out after a few seconds.
+//             d. Call `showNotification("Reality Tremor! -2 HP")` from `simulation.js` when the event triggers.
+//    5.11 **Building Stats (Conceptual):**
+//         - *Current:* Buildings only have display stats.
+//         - *Proposal:* Give buildings internal stats (e.g., "Integrity" or "HP") that actions like "Sabotage" could affect. "Upgrade" action could increase them.
+//         - *Action:* Defer until core player loop and feedback are more refined.
 
-// **Focus for next step:** Implement simple random events affecting Player HP (Phase 5.9, Option B). Create basic event trigger, call `changeHp`, add minimal feedback. Update `dev-notes.js`.
+// **Focus for next step:** Implement the visual notification message for HP loss (Phase 5.10). Update `dev-notes.js`.
 
-console.log("Developer notes loaded. Phase 5.8 Sabotage Action implemented. Ready for Phase 5.9.");
+console.log("Developer notes loaded. Phase 5.9 Random HP Loss Event implemented. Ready for Phase 5.10.");
