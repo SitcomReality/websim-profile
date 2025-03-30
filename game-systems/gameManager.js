@@ -1,6 +1,6 @@
 import { getPlayerState } from './playerState.js';
 import { updateHUD, setupIcons } from './gameUI.js';
-import { startDayNightCycle, startRandomEvents } from './simulation.js';
+import { startDayNightCycle, startRandomEvents, startResourceGeneration } from './simulation.js';
 
 function initGame() {
     console.log("Initializing game systems...");
@@ -19,6 +19,9 @@ function initGame() {
 
     // Start the random event checks
     startRandomEvents();
+
+    // Start passive resource generation
+    startResourceGeneration();
 
     // Start game loop, event listeners, etc. here later
     console.log("Game systems initialized.");
