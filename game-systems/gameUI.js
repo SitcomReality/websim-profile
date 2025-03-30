@@ -1,4 +1,6 @@
 import { getIcon } from './icons.js';
+import { getPlayerState, spendCoins } from './playerState.js';
+import { generateBuildingInvestigationText } from '../api.js';
 
 // References to HUD elements
 const scoreEl = document.querySelector('#stat-score .value');
@@ -23,6 +25,9 @@ const inertiaIconEl = document.querySelector('#stat-inertia .icon');
 // Reference to Selected Building Info Panel element
 const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel');
 
+// --- Constants ---
+const INVESTIGATION_COST = 10; // Define the cost here
+
 function updateHUD(playerState) {
     console.log("Updating HUD with state:", playerState);
     if (scoreEl) scoreEl.textContent = playerState.score ?? 0;
@@ -46,11 +51,65 @@ function setupIcons() {
     if (inertiaIconEl) inertiaIconEl.innerHTML = getIcon('existentialInertia');
 }
 
+// Function to setup listener for the investigation button
+function setupInvestigationButtonListener() {
+    const investigateButton = document.getElementById('investigate-button');
+    if (investigateButton) {
+        investigateButton.addEventListener('click', async () => {
+            const currentState = getPlayerState();
+            if (!currentState.selectedBuildingData) {
+                console.warn("Investigate clicked but no building selected.");
+                return;
+            }
+
+            if (currentState.coins >= INVESTIGATION_COST) {
+                // Disable button temporarily to prevent spamming
+                investigateButton.disabled = true;
+                investigateButton.textContent = 'Investigating...';
+
+                // Spend coins
+                spendCoins(INVESTIGATION_COST);
+
+                try {
+                    // Call the API function
+                    await generateBuildingInvestigationText(currentState.selectedBuildingData);
+                    // Re-enable button or change text on success if needed
+                    investigateButton.textContent = `Investigate (${INVESTIGATION_COST} Coins)`;
+                    investigateButton.disabled = false; // Re-enable after successful investigation
+                } catch (error) {
+                    console.error("Investigation failed:", error);
+                    // Handle error - maybe show a message in AI text?
+                    // Give coins back? Or just log error? For now, just log.
+                    investigateButton.textContent = `Error (${INVESTIGATION_COST} Coins)`;
+                    // Optionally re-enable after a delay on error
+                    setTimeout(() => {
+                        investigateButton.disabled = false;
+                        updateSelectedBuildingInfo(currentState.selectedBuildingData); // Refresh panel to show correct state
+                    }, 1500);
+                }
+            } else {
+                // Not enough coins feedback
+                const originalText = investigateButton.textContent;
+                investigateButton.textContent = 'Not Enough Coins!';
+                investigateButton.classList.add('error'); // Add class for styling
+                setTimeout(() => {
+                    investigateButton.textContent = originalText;
+                    investigateButton.classList.remove('error');
+                    // Re-evaluate disabled state based on current coins
+                    updateSelectedBuildingInfo(currentState.selectedBuildingData);
+                }, 1500); // Show message for 1.5 seconds
+            }
+        });
+    }
+}
+
 // Function to update the Selected Building Info Panel
 function updateSelectedBuildingInfo(projectData) {
     if (!selectedBuildingInfoPanelEl) return;
 
     if (projectData) {
+        const currentCoins = getPlayerState().coins;
+        const canAfford = currentCoins >= INVESTIGATION_COST;
         selectedBuildingInfoPanelEl.innerHTML = `
             <h4>${projectData.title || 'Untitled Building'}</h4>
             <p class="description">${projectData.description || 'No details available.'}</p>
@@ -67,14 +126,20 @@ function updateSelectedBuildingInfo(projectData) {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
                     ${projectData.comments ?? 'N/A'}
                 </span>
-                <!-- Add more details or action buttons here later -->
+            </div>
+            <div class="actions">
+                <button id="investigate-button" ${!canAfford ? 'disabled' : ''} title="${!canAfford ? 'Not enough coins' : 'Investigate this building'}">
+                    Investigate (${INVESTIGATION_COST} Coins)
+                </button>
+                 <!-- More actions can be added here -->
             </div>
         `;
         selectedBuildingInfoPanelEl.classList.add('visible');
+        setupInvestigationButtonListener(); // Set up listener after adding the button
     } else {
         selectedBuildingInfoPanelEl.innerHTML = '<p>Select a building to see details.</p>';
         selectedBuildingInfoPanelEl.classList.remove('visible');
     }
 }
 
-export { updateHUD, setupIcons, updateSelectedBuildingInfo };
+export { updateHUD, setupIcons, updateSelectedBuildingInfo, INVESTIGATION_COST }; // Export cost if needed elsewhere

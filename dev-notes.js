@@ -6,28 +6,25 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-30 (Phase 5.4 Complete)
+ * Updated: 2024-07-31 (Phase 5.5 Complete)
  */
 
-// --- Current State (Post-Phase 5.4 - Selected Building Info Panel) ---
-// 1. `index.html`:
-//    - Added `<div id="selected-building-info-panel">`.
-// 2. `style.css`:
-//    - Imported `styles/selected-building.css`.
-// 3. `styles/selected-building.css`: (New File)
-//    - Added styles for the info panel, including a 'visible' class for display.
-// 4. `gameBoardUI.js`:
-//    - Stores project details (title, description, stats) as `data-*` attributes on `.city-object`.
-//    - Click listener now retrieves this data and passes it to `setSelectedBuilding`.
-//    - Click listener now directly calls `updateBuildingSelectionHighlight` after setting state.
-//    - Initial state check now also calls `updateSelectedBuildingInfo`.
-// 5. `playerState.js`:
-//    - Added `selectedBuildingData` to state.
-//    - `setSelectedBuilding` now accepts `(projectId, projectData)` and updates both `selectedBuildingId` and `selectedBuildingData`.
-//    - `updatePlayerState` now checks for changes in `selectedBuildingData` and calls `updateSelectedBuildingInfo`.
-// 6. `gameUI.js`:
-//    - Added reference to `#selected-building-info-panel`.
-//    - Added `updateSelectedBuildingInfo(projectData)` function to populate the panel or hide it based on data. Exported this function.
+// --- Current State (Post-Phase 5.5 - Building Investigation Action) ---
+// 1. `gameUI.js`:
+//    - `updateSelectedBuildingInfo` now includes an "Investigate" button template.
+//    - Button text includes cost (`INVESTIGATION_COST` constant).
+//    - Button is disabled if player coins < cost (checked via `getPlayerState`).
+//    - Added `setupInvestigationButtonListener` function.
+//    - Event listener checks coin cost, calls `spendCoins` (from `playerState`), calls `generateBuildingInvestigationText` (from `api.js`), and provides feedback (button text/state changes for loading, success, error, insufficient funds).
+// 2. `api.js`:
+//    - Added `generateBuildingInvestigationText(buildingData)` function.
+//    - This function takes building data, constructs a specific prompt for the AI.
+//    - Calls the AI API and updates the main AI text display area (`aiPromptEl`, `aiResponseEl`) with the investigation prompt and result.
+//    - Handles errors during the AI call.
+// 3. `styles/selected-building.css`:
+//    - Added styles for the `.actions` container and the `button` element within the selected building panel.
+//    - Included styles for `:hover`, `:active`, `:disabled`, and `.error` states for the button.
+// 4. `playerState.js`: No changes needed, `spendCoins` already existed.
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
@@ -38,25 +35,26 @@
 //    5.1: Click/Hover Interactions (Completed)
 //    5.2: View Centering on Selection (Completed)
 //    5.3: Simple Day/Night Cycle (Completed)
-//    5.4: Selected Building Info Panel (Completed) - Display basic info on selection.
+//    5.4: Selected Building Info Panel (Completed)
+//    5.5: Building Actions - "Investigate" (Completed)
 
 // --- Next Steps ---
 
 // **Phase 5 Continued: Interactivity & Simulation**
-//    *Objective: Add more depth to the simulation and player interaction.*
-//    5.  **Building Actions (Conceptual):**
-//        -   *Current:* Selecting shows info.
-//        -   *Proposal:* Add buttons or interactive elements to the `#selected-building-info-panel` that allow the player to perform actions related to the selected building.
-//        -   *Example Action:* "Investigate" button - Could cost 'coins' (from `playerState`), and trigger a new AI generation call (`api.js`) using the selected building's details (title, description) as part of the prompt, displaying the result perhaps in the AI text area or a modal.
-//        -   *Action:*
-//            a. Add a button (e.g., `<button id="investigate-button">Investigate (10 Coins)</button>`) inside the `updateSelectedBuildingInfo` template in `gameUI.js` when a building is selected.
-//            b. Add an event listener (perhaps in `gameUI.js` or a new `interactionManager.js`) for this button.
-//            c. The listener should:
-//                i. Check if the player has enough coins (`spendCoins` from `playerState.js`).
-//                ii. If yes, deduct coins.
-//                iii. Trigger a new function (e.g., `generateBuildingInvestigationText` in `api.js`) passing the selected building's data.
-//                iv. Display the result. Update button state (e.g., disable if not enough coins).
+//    *Objective: Add more actions, refine existing ones, integrate simulation elements.*
+//    5.6 **Refine Investigation Feedback:**
+//        - *Current:* Investigation results appear in the main AI text area.
+//        - *Proposal:* Consider if results should be displayed differently, perhaps temporarily within the building panel itself or a dedicated log area, to avoid overwriting the general AI text too often.
+//        - *Action:* (Low priority for now) Decide on display location. If changing, update `generateBuildingInvestigationText` in `api.js` and potentially add new UI elements/functions.
+//    5.7 **More Building Actions (Conceptual):**
+//        - *Proposal:* Add another action, e.g., "Upgrade" (costs Gems?), "Sabotage" (costs Grenades?), "Paint" (costs Paint?).
+//        - *Example:* "Paint" button (cost: 50 Paint) - could simply deduct paint from `playerState` and visually change the building slightly (e.g., add a temporary overlay or border color change).
+//        - *Action:*
+//            a. Add a "Paint" button to the template in `gameUI.js`. Check/display paint cost.
+//            b. Add logic to the event listener setup in `gameUI.js` to handle this button (check paint, call `spendPaint` in `playerState.js`).
+//            c. Implement `spendPaint` in `playerState.js`.
+//            d. (Optional Visual Feedback): Add a temporary class or style change to the selected `.city-object` in `gameBoardUI.js` triggered by a successful paint action (might require passing a callback or using a simple event bus).
 
-// **Focus for next step:** Implement the "Investigate" action (Phase 5.5). Update `gameUI.js` template, add listener, implement coin check/spending logic (`playerState.js` already has `spendCoins`), create AI call function in `api.js`, and update `dev-notes.js`.
+// **Focus for next step:** Implement the "Paint" action (Phase 5.7 - Paint). Update `gameUI.js` template/listener, add `spendPaint` to `playerState.js`, add visual feedback if feasible. Update `dev-notes.js`.
 
-console.log("Developer notes loaded. Phase 5.4 Selected Building Info Panel implemented. Ready for Phase 5.5 Building Actions.");
+console.log("Developer notes loaded. Phase 5.5 Building Investigation implemented. Ready for Phase 5.7 More Building Actions.");

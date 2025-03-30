@@ -16,6 +16,7 @@ import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 import { CONTEXT_TERMS } from './context_terms.js';
 import { ADJECTIVE_TERMS } from './adjective_terms.js';
 import { NOUN_TERMS } from './noun_terms.js';
+import { getPlayerState, spendCoins } from './game-systems/playerState.js';
 
 function getRandomElement(arr) {
     if (!arr || arr.length === 0) return '';
@@ -58,6 +59,51 @@ async function generateAiText() {
         if (aiPromptEl.textContent === 'Generating prompt...') {
             aiPromptEl.textContent = 'Failed to generate prompt.';
         }
+    }
+}
+
+async function generateBuildingInvestigationText(buildingData) {
+    if (!aiPromptEl || !aiResponseEl) {
+        console.error("AI text elements not found for investigation.");
+        return; 
+    }
+    if (!buildingData) {
+         console.error("No building data provided for investigation.");
+         return; 
+    }
+
+    console.log("Investigating building:", buildingData.title);
+
+    try {
+        const userPrompt = `You are investigating a building titled "${buildingData.title}". Its description is: "${buildingData.description}". Provide a short, intriguing, or perhaps slightly absurd observation or piece of fictional lore about this place based on its title and description. Keep it under 50 words.`;
+
+        aiPromptEl.textContent = `Investigating: "${buildingData.title}"...`;
+        aiResponseEl.textContent = 'Scanning for anomalies...'; 
+
+        const systemPrompt = `Provide a short, intriguing response to the user's investigation request. Be concise and imaginative. Use simple formatting like <b> or <i> if appropriate, but keep it brief.`;
+
+        let conversationHistory = [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+        ];
+
+        const completion = await window.websim.chat.completions.create({
+            messages: conversationHistory,
+        });
+
+        if (completion && completion.content) {
+            aiPromptEl.textContent = `Investigation Result for: "${buildingData.title}"`;
+            setAiResponse(completion.content);
+        } else {
+            throw new Error("AI did not return content for investigation.");
+        }
+
+    } catch (error) {
+        console.error('Error generating investigation text:', error);
+        logError(error); 
+        aiPromptEl.textContent = `Investigation Failed: "${buildingData.title}"`;
+        aiResponseEl.textContent = 'Error retrieving data. Interference detected.';
+        throw error; 
     }
 }
 
@@ -228,5 +274,6 @@ async function logError(error) {
 export {
     initProfile,
     logError,
-    generateAiText
+    generateAiText,
+    generateBuildingInvestigationText 
 }

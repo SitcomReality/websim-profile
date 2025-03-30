@@ -10,7 +10,7 @@
     color: #ccc;
     font-size: 0.9em;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease;
     opacity: 0; /* Hidden by default */
     transform: translateY(-10px);
     height: 0; /* Start collapsed */
@@ -22,8 +22,9 @@
     opacity: 1;
     transform: translateY(0);
     height: auto; /* Expand to content height */
-    min-height: 50px; /* Ensure it's visible even if empty */
+    min-height: 80px; /* Adjust if needed for content + button */
     visibility: visible;
+    padding-bottom: 20px; /* Add padding for button */
 }
 
 #selected-building-info-panel p:first-child {
@@ -69,4 +70,47 @@
     width: 14px;
     height: 14px;
     fill: var(--tertiary-color);
+}
+
+/* Styles for the action area and buttons */
+#selected-building-info-panel .actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    gap: 10px;
+}
+
+#selected-building-info-panel .actions button {
+    padding: 8px 15px;
+    background-color: var(--secondary-color);
+    color: #222;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+    font-size: 0.9em;
+}
+
+#selected-building-info-panel .actions button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--secondary-color) 85%, white);
+    transform: translateY(-1px);
+}
+
+#selected-building-info-panel .actions button:active:not(:disabled) {
+    transform: translateY(0px);
+}
+
+#selected-building-info-panel .actions button:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Style for error feedback on button */
+#selected-building-info-panel .actions button.error {
+    background-color: #e74c3c; /* Red for error */
+    color: white;
 }
