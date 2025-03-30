@@ -45,10 +45,15 @@
                 </ul>
             </section>
             <!-- End Objectives Panel -->
-            <div id="city-container">
-                <div id="city-scape">
-                    <p>Loading city...</p> 
+            <!-- City Container wrapper for navigation -->
+            <div id="city-navigation-wrapper">
+                <button id="city-nav-left" class="city-nav-arrow" aria-label="Scroll Left" disabled>&lt;</button>
+                <div id="city-container">
+                    <div id="city-scape">
+                        <p>Loading city...</p>
+                    </div>
                 </div>
+                 <button id="city-nav-right" class="city-nav-arrow" aria-label="Scroll Right" disabled>&gt;</button>
             </div>
             <!-- Selected Building Panel moved below city container -->
             <section id="selected-building-info-panel">
@@ -85,8 +90,8 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initProfile(); 
-                initGame();         
+                await initProfile();
+                initGame();
             } catch (error) {
                 console.error("Initialization failed:", error);
                 const userEl = document.getElementById('username');

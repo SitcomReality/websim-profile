@@ -4,8 +4,62 @@ import { setSelectedBuilding, getPlayerState } from './playerState.js';
 import { updateSelectedBuildingInfo } from './gameUI.js'; 
 
 // --- DOM Elements ---
+const cityContainerEl = document.getElementById('city-container'); 
 const cityScapeEl = document.getElementById('city-scape');
 const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel');
+// New Navigation Elements
+const navLeftButton = document.getElementById('city-nav-left');
+const navRightButton = document.getElementById('city-nav-right');
+
+// --- Navigation Constants ---
+const SCROLL_AMOUNT_FACTOR = 0.8; 
+const SCROLL_END_TOLERANCE = 5; 
+
+// --- Setup City Navigation ---
+function setupCityNavigation() {
+    if (!cityContainerEl || !navLeftButton || !navRightButton) {
+        console.warn("City navigation elements not found.");
+        return;
+    }
+
+    // Function to update arrow button states
+    const updateNavButtons = () => {
+        const scrollLeft = cityContainerEl.scrollLeft;
+        const scrollWidth = cityContainerEl.scrollWidth;
+        const clientWidth = cityContainerEl.clientWidth;
+
+        navLeftButton.disabled = scrollLeft <= 0;
+        navRightButton.disabled = scrollLeft + clientWidth >= scrollWidth - SCROLL_END_TOLERANCE;
+        const canScroll = scrollWidth > clientWidth;
+        navLeftButton.style.display = canScroll ? 'flex' : 'none';
+        navRightButton.style.display = canScroll ? 'flex' : 'none';
+    };
+
+    // Initial button state check
+    updateNavButtons();
+
+    // Scroll event listener to update buttons dynamically
+    cityContainerEl.addEventListener('scroll', updateNavButtons, { passive: true });
+
+    // Click listeners for arrows
+    navLeftButton.addEventListener('click', () => {
+        const scrollAmount = cityContainerEl.clientWidth * SCROLL_AMOUNT_FACTOR;
+        cityContainerEl.scrollBy({
+            left: -scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    navRightButton.addEventListener('click', () => {
+        const scrollAmount = cityContainerEl.clientWidth * SCROLL_AMOUNT_FACTOR;
+        cityContainerEl.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    console.log("City navigation initialized.");
+}
 
 // Helper to generate HTML for a 3D building based on project data
 function createBuildingHTML(project, project_revision, site) {
@@ -18,22 +72,21 @@ function createBuildingHTML(project, project_revision, site) {
     const buildingId = project.id;
 
     // Calculate a subtle color/style variation based on project ID for visual diversity
-    // Simple hash function to get a value between 0 and 1
     let hash = 0;
     for (let i = 0; i < buildingId.length; i++) {
         hash = buildingId.charCodeAt(i) + ((hash << 5) - hash);
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash; 
     }
     const variationSeed = Math.abs(hash);
-    const colorVariation = (variationSeed % 100) / 100; // Value 0 to 0.99
-    const widthVariation = ((variationSeed % 21) - 10) / 100; // Value -0.10 to +0.10 (-10% to +10%)
-    const roofStyleVariation = variationSeed % 3; // Value 0, 1, or 2 for different roof styles
+    const colorVariation = (variationSeed % 100) / 100; 
+    const widthVariation = ((variationSeed % 21) - 10) / 100; 
+    const roofStyleVariation = variationSeed % 3; 
 
     // Base color for sides/top - slightly darker than the board space bg
     const baseSideColor = 'hsl(240, 10%, 15%)';
     // Vary lightness based on hash
-    const sideLightness = 12 + (colorVariation * 10); // Range 12% to 22%
-    const topLightness = 20 + (colorVariation * 15); // Range 20% to 35%
+    const sideLightness = 12 + (colorVariation * 10); 
+    const topLightness = 20 + (colorVariation * 15); 
 
     const sideColor = `hsl(240, 10%, ${sideLightness.toFixed(0)}%)`;
     const topColor = `hsl(240, 10%, ${topLightness.toFixed(0)}%)`;
@@ -44,7 +97,7 @@ function createBuildingHTML(project, project_revision, site) {
         --building-width-variation: ${widthVariation.toFixed(2)};
         --roof-detail-style: ${roofStyleVariation};
         --animation-delay: ${(variationSeed % 10) * 0.05}s;
-    `; // Use variationSeed for animation delay to prevent correlation with width/color
+    `; 
 
 
     return `
@@ -97,13 +150,24 @@ function updateBuildingSelectionHighlight(selectedId) {
     });
 
     // --- Scroll into View ---
-    if (selectedElement) {
-        selectedElement.scrollIntoView({
-            behavior: 'smooth', 
-            block: 'nearest',   
-            inline: 'center'    
+    if (selectedElement && cityContainerEl) { 
+        const containerRect = cityContainerEl.getBoundingClientRect();
+        const elementRect = selectedElement.getBoundingClientRect();
+        const elementOffsetLeft = selectedElement.offsetLeft; 
+        const elementWidth = selectedElement.offsetWidth;
+        const containerWidth = cityContainerEl.clientWidth;
+
+        const targetScrollLeft = elementOffsetLeft + elementWidth / 2 - containerWidth / 2;
+
+        const maxScrollLeft = cityContainerEl.scrollWidth - containerWidth;
+        const finalScrollLeft = Math.max(0, Math.min(maxScrollLeft, targetScrollLeft));
+
+        cityContainerEl.scrollTo({
+            left: finalScrollLeft,
+            behavior: 'smooth'
         });
-        console.log(`Scrolled to center building: ${selectedId}`);
+
+        console.log(`Scrolling to center building: ${selectedId}`);
     }
     // --- End Scroll into View ---
 }
@@ -113,11 +177,12 @@ async function displayCityScape(projectsData) {
         console.error("City scape element not found!");
         return;
     }
-    cityScapeEl.innerHTML = '';
+    cityScapeEl.innerHTML = ''; 
 
     if (!projectsData || projectsData.length === 0) {
         cityScapeEl.innerHTML = '<p>No city objects to display.</p>';
         if (selectedBuildingInfoPanelEl) selectedBuildingInfoPanelEl.innerHTML = '';
+        setupCityNavigation();
         return;
     }
 
@@ -139,28 +204,24 @@ async function displayCityScape(projectsData) {
         cityObjectDiv.dataset.comments = project.stats.comments ?? 0;
         cityObjectDiv.dataset.link = site ? `https://websim.ai/c/${site.id}` : `https://websim.ai/p/${project.id}`;
 
-        // Generate the 3D building HTML and style variations
         const buildingHTML = createBuildingHTML(project, project_revision, site);
         cityObjectDiv.innerHTML = buildingHTML;
 
-        // Apply variations via style attribute
         let hash = 0;
         for (let i = 0; i < project.id.length; i++) {
             hash = project.id.charCodeAt(i) + ((hash << 5) - hash); hash = hash & hash;
         }
         const variationSeed = Math.abs(hash);
-        const widthVariation = ((variationSeed % 21) - 10) / 100; // -0.10 to +0.10
-        const roofStyleVariation = variationSeed % 3; // 0, 1, or 2
-        const animationDelay = (variationSeed % 10) * 0.05; // Stagger animation
+        const widthVariation = ((variationSeed % 21) - 10) / 100; 
+        const roofStyleVariation = variationSeed % 3; 
+        const animationDelay = (variationSeed % 10) * 0.05; 
 
         cityObjectDiv.style.setProperty('--building-width-variation', widthVariation.toFixed(2));
-        cityObjectDiv.style.setProperty('--roof-detail-style', roofStyleVariation);
+        cityObjectDiv.style.setProperty('--roof-detail-style', String(roofStyleVariation)); 
         cityObjectDiv.style.setProperty('--animation-delay', `${animationDelay}s`);
 
-        // Add click listener to the main city object, not just the card
         cityObjectDiv.addEventListener('click', (event) => {
-            // Prevent selection if the external link button was clicked
-             if (event.target.closest('.project-link-button')) {
+            if (event.target.closest('.project-link-button')) {
                 console.log("Link button clicked, preventing selection.");
                 return;
             }
@@ -182,11 +243,9 @@ async function displayCityScape(projectsData) {
         });
 
         const views = project.stats.views ?? 0;
-        // Keep height calculation based on views for now
         const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5;
         const heightFactor = Math.max(0.6, Math.min(2.5, baseHeightFactor));
-        cityObjectDiv.style.setProperty('--building-height-factor', heightFactor);
-        // cityObjectDiv.style.setProperty('--animation-delay', `${(index * 0.05)}s`); // Use hash-based delay now
+        cityObjectDiv.style.setProperty('--building-height-factor', String(heightFactor)); 
 
         cityScapeEl.appendChild(cityObjectDiv);
     });
@@ -195,8 +254,9 @@ async function displayCityScape(projectsData) {
     if (initialState.selectedBuildingId) {
         updateBuildingSelectionHighlight(initialState.selectedBuildingId);
     }
-    // Use the globally available update function
     updateSelectedBuildingInfo(initialState.selectedBuildingData);
+
+    setTimeout(setupCityNavigation, 0);
 }
 
 export { displayCityScape, updateBuildingSelectionHighlight };
