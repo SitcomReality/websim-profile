@@ -49,14 +49,28 @@ function createProjectCardHTML(project, project_revision, site) {
 function updateBuildingSelectionHighlight(selectedId) {
     if (!cityScapeEl) return;
     const cityObjects = cityScapeEl.querySelectorAll('.city-object');
+    let selectedElement = null;
+
     cityObjects.forEach(obj => {
         const projectId = obj.dataset.projectId;
         if (projectId && projectId === selectedId) {
             obj.classList.add('selected');
+            selectedElement = obj; // Store the selected element
         } else {
             obj.classList.remove('selected');
         }
     });
+
+    // --- Scroll into View ---
+    if (selectedElement) {
+        selectedElement.scrollIntoView({
+            behavior: 'smooth', // Smooth scrolling
+            block: 'nearest',   // Align to nearest edge vertically (less important here)
+            inline: 'center'    // Center the element horizontally within the scroll container
+        });
+        console.log(`Scrolled to center building: ${selectedId}`);
+    }
+    // --- End Scroll into View ---
 }
 // Expose the highlight function globally for playerState to call
 window.updateBuildingSelectionHighlight = updateBuildingSelectionHighlight;
