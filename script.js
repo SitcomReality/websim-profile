@@ -1,6 +1,6 @@
-// Main entry point for the application
-// Currently, initialization is handled directly in index.html's script tag
-// This file can be used for more complex logic later if needed.
+// Main entry point for the application - currently unused.
+// Initialization is handled directly in index.html's module scripts.
+// This file can be used for more complex shared logic later if needed.
+// For example: event bus, global state management outside of playerState, etc.
 
-// Example: If we need shared logic between profile and game systems
-// import { someSharedFunction } from './shared-utils.js';
+console.log("script.js loaded (currently inactive)");

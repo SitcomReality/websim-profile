@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SitcomReality's Profile</title> 
+    <title>SitcomReality's Profile</title>
     <link rel="stylesheet" href="style.css">
     <script type="importmap">
       {
@@ -20,13 +20,13 @@
                 <img id="avatar" src="/SITCOMREALITYLOGO.jpg" alt="SitcomReality's Profile Avatar" loading="lazy">
             </div>
             <div id="user-info">
-                <h1 id="username">Loading...</h1> 
+                <h1 id="username">Loading...</h1>
                 <p id="description"></p>
                 <div id="stats">
-                    <span ><span id="followers-count">--</span> followers</span>
-                    <span ><span id="following-count">--</span> following</span>
-                    <span ><span id="likes-count">--</span> likes</span>
-                    <span ><span id="views-count">--</span> views</span>
+                    <span title="Followers"><span id="followers-count">--</span> followers</span>
+                    <span title="Following"><span id="following-count">--</span> following</span>
+                    <span title="Likes Received"><span id="likes-count">--</span> likes</span>
+                    <span title="Total Views"><span id="views-count">--</span> views</span>
                 </div>
             </div>
             <!-- New AI Text Container -->
@@ -41,10 +41,12 @@
             </div>
         </header>
 
-        <main id="projects-section">
-            <h2>Need a distraction from the apocalypse?</h2>
-            <div id="projects-grid">
-                <p>Loading projects...</p> 
+        <main id="board-section">
+            <h2>Roll the Dice, Face the Farce</h2>
+            <div id="game-board-container">
+                <div id="game-board">
+                    <p>Loading board...</p>
+                </div>
             </div>
         </main>
     </div>
@@ -66,18 +68,29 @@
         <!-- Other HUD sections can go here later -->
     </footer>
 
-    <script type="module" src="script.js"></script>
+    <!-- Initialize Background Separately -->
+    <script type="module">
+        import { initThreeJS } from './background.js';
+        document.addEventListener('DOMContentLoaded', initThreeJS);
+    </script>
+    <!-- Initialize Profile and Game -->
     <script type="module">
         import { initProfile } from './api.js';
-        import { initGame } from './game-systems/gameManager.js'; // Import game init
+        import { initGame } from './game-systems/gameManager.js';
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initProfile(); // Initialize profile first
-                initGame();         // Then initialize game systems
+                await initProfile(); // Initialize profile (fetches projects, displays board)
+                initGame();         // Then initialize game systems (sets up HUD)
             } catch (error) {
                 console.error("Initialization failed:", error);
                 // Handle potential init failures (e.g., display error messages)
+                // Basic error message for user if profile fails badly
+                const userEl = document.getElementById('username');
+                if (userEl && userEl.textContent === 'Loading...') {
+                    userEl.textContent = 'Error';
+                    document.getElementById('description').textContent = 'Could not load profile or game board.';
+                }
             }
         });
     </script>

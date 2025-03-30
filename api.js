@@ -6,7 +6,7 @@ import {
     followingCountEl,
     likesCountEl,
     viewsCountEl,
-    projectsGridEl,
+    gameBoardEl,
     displayProjects,
     aiPromptEl,
     aiResponseEl,
@@ -147,7 +147,8 @@ async function fetchUserProjects(username) {
     try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), API_TIMEOUT + 2000);
-        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`, {
+        // Fetch more projects in case some are invalid later, adjust limit as needed
+        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=50`, {
             signal: controller.signal
         });
         clearTimeout(timer);
@@ -156,10 +157,12 @@ async function fetchUserProjects(username) {
         }
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        displayProjects(data.projects.data);
+        // Filter out entries without project or revision before passing to display
+        const validProjects = data.projects.data.filter(p => p.project && p.project_revision);
+        displayProjects(validProjects);
     } catch (error) {
         logError(error);
-        if (projectsGridEl) projectsGridEl.innerHTML = '<p>Error loading projects.</p>';
+        if (gameBoardEl) gameBoardEl.innerHTML = '<p>Error loading projects.</p>'; // Updated element reference
         throw new Error(`Failed to fetch user projects: ${error.message}`);
     }
 }
@@ -171,15 +174,19 @@ async function initProfile() {
            throw new Error("Core profile UI elements not found.");
         }
         usernameEl.textContent = 'Loading...';
+        if (gameBoardEl) gameBoardEl.innerHTML = '<p>Loading board...</p>'; // Initial board message
 
         const user = await fetchUserProfile(PROFILE_USERNAME);
         usernameEl.textContent = user.username || 'Anonymous';
         descriptionEl.textContent = user.description || 'Face the farce.';
+        // Use user.id if available for stats/follows, fallback to username
+        const userIdForStats = user.id || PROFILE_USERNAME;
+        const usernameForProjects = user.username || PROFILE_USERNAME;
 
         await Promise.allSettled([
-            fetchUserStats(user.id || PROFILE_USERNAME),
-            fetchFollowCounts(user.username || PROFILE_USERNAME),
-            fetchUserProjects(user.username || PROFILE_USERNAME),
+            fetchUserStats(userIdForStats),
+            fetchFollowCounts(usernameForProjects), // Follow counts use username
+            fetchUserProjects(usernameForProjects),
             generateAiText()
         ]);
 
@@ -197,14 +204,15 @@ async function initProfile() {
          if (followingCountEl) followingCountEl.textContent = 'N/A';
          if (likesCountEl) likesCountEl.textContent = 'N/A';
          if (viewsCountEl) viewsCountEl.textContent = 'N/A';
-         if (projectsGridEl && projectsGridEl.innerHTML.includes('Loading projects...')) {
-             projectsGridEl.innerHTML = '<p>Failed to load projects.</p>';
+         if (gameBoardEl && gameBoardEl.innerHTML.includes('Loading board...')) { // Updated element reference
+             gameBoardEl.innerHTML = '<p>Failed to load game board.</p>';
          }
          if (aiResponseEl && aiResponseEl.textContent === 'Thinking...') {
              if (aiPromptEl) aiPromptEl.textContent = 'AI Unavailable';
              aiResponseEl.textContent = 'Could not connect.';
          }
-         throw error;
+         // Don't re-throw here, let the page load partially
+         // throw error;
     }
 }
 

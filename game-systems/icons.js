@@ -9,6 +9,7 @@ const icons = {
     paint: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 4V3c0-.55-.45-1-1-1H7c-.55 0-1 .45-1 1v1H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2zm-5 14H7v-2h6v2zm3-4H7v-2h9v2zm0-4H7V8h9v2z"/></svg>`, // Using a paint bucket/can icon
     limbs: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 10c-2.7 0-5.8 1.29-6 2.01V20h12v-1.99c-.2-.72-3.3-2.01-6-2.01M4.06 7.78L3 8.5l1.42 2.84.94-.47L4.06 7.78zM21 8.5l-.94-.72L18.64 10.87l.94.47L21 8.5zM7.5 12c1.1 0 2 .9 2 2H14.5c1.1 0 2-.9 2-2S15.6 10 14.5 10H9.5c-1.1 0-2 .9-2 2z"/></svg>`, // Generic person/body icon
     existentialInertia: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3C6.486 3 2 7.486 2 13c0 5.514 4.486 10 10 10s10-4.486 10-10c0-5.514-4.486-10-10-10zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M11 7h2v6h-2zm0 8h2v2h-2z"/></svg>`, // Question/Info circle, symbolizing the abstract
+    externalLink: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>`
 };
 
 export function getIcon(statName) {
