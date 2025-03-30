@@ -6,130 +6,93 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-27 - Implemented Phase 1 (Element ID and CSS Renaming)
+ * Updated: 2024-07-27 (Phase 1)
+ * Updated: 2024-07-28 (Phase 2)
  */
 
-// --- Current State (Post-Phase 1 Implementation) ---
-// 1. Renamed HTML elements in index.html:
-//    - #game-board-container -> #city-container
-//    - #game-board -> #city-scape
-// 2. Renamed CSS file:
-//    - game-board.css -> city-view.css
-//    - Updated imports in style.css
-// 3. Updated DOM element selectors in gameBoardUI.js and api.js
-// 4. Updated responsive.css media queries to reference new element IDs
+// --- Current State (Post-Phase 2 Implementation) ---
+// 1. HTML IDs and CSS selectors updated to "city" theme (`#city-container`, `#city-scape`, `.city-object`).
+// 2. CSS (`city-view.css`) updated:
+//    - Removed grid layout from `#city-scape`.
+//    - `.city-object` styled as `inline-block` with fixed dimensions.
+//    - Removed `.empty-space` styles.
+// 3. Rendering Logic (`gameBoardUI.js`):
+//    - Renamed `displayProjects` to `displayCityScape`.
+//    - Removed board distribution logic (32 slots, empty spaces).
+//    - Now iterates directly through project data and appends `.city-object` elements.
+//    - Removed dependency on grid index for animations (using simple iteration index).
+// 4. Related files (`api.js`, `responsive.css`, `index.html`) updated to reflect changes.
 
 // --- Implementation Progress ---
-// Phase 1: Foundational Renaming & Restructuring
-//    *Objective: Align file names and structure with the new "city" concept.*
-//    1.  **Rename Files:**
-//        -   `game-systems/gameBoardUI.js` -> `game-systems/ui/cityViewUI.js`
-//        -   `game-systems/gameUI.js` -> `game-systems/ui/hudUI.js`
-//        -   `styles/game-board.css` -> `styles/city-view.css`
-//        -   (Optional) `game-systems/gameManager.js` -> `game-systems/core/gameManager.js`
-//        -   (Optional) `game-systems/playerState.js` -> `game-systems/core/playerState.js`
-//    2.  **Create Directories:**
-//        -   `game-systems/core/`
-//        -   `game-systems/ui/`
-//        -   (Optional) `data/` (for `context_terms.js`, `noun_terms.js`, `adjective_terms.js`)
-//    3.  **Update Imports/References:** Modify paths in `index.html`, `style.css`, `api.js`, `gameManager.js` (or its new path), etc., to reflect the new file locations and names.
-//    4.  **HTML ID Changes:**
-//        -   `#game-board-container` -> `#city-container`
-//        -   `#game-board` -> `#city-scape` (or similar)
-//        -   Update relevant JS/CSS selectors.
+// Phase 1: Foundational Renaming & Restructuring (Completed)
+// Phase 2: Basic City Layout (Completed)
+//    *Objective: Remove grid layout, render projects as distinct block elements.*
+//    *Status: Done. Projects render horizontally as simple blocks.*
 
-// --- Proposed Refactoring & Implementation Steps (Incremental) ---
-
-// **Phase 2: Basic City Layout**
-//    *Objective: Remove the grid layout and render projects as distinct block elements.*
-//    1.  **Modify CSS (`city-view.css`):**
-//        -   Remove `display: grid` from `#city-scape`.
-//        -   Remove fixed `grid-template-columns` and `min-width` related to the grid.
-//        -   Style the new `#city-container` (e.g., `position: relative`, `overflow: auto` initially).
-//        -   Style the project elements (formerly `.board-space`, perhaps rename class to `.city-object` or `.building`) as simple blocks (`display: inline-block` or `block`, basic width/height/margin). Remove `aspect-ratio`.
-//        -   Remove the `.empty-space` class and related styling/logic.
-//    2.  **Modify Rendering Logic (`cityViewUI.js`):**
-//        -   Update `displayProjects` (or rename `renderCityScape`).
-//        -   Remove the logic for distributing projects across 32 slots and creating empty spaces.
-//        -   Loop directly through `projectsData` and append each project element (`.city-object`) to `#city-scape`.
-//        -   Remove the `popIn` animation tied to grid index (can add different entrance later).
+// --- Next Steps ---
 
 // **Phase 3: Introducing City Visual Metaphor**
 //    *Objective: Start making the project elements look less like cards and more like city features.*
 //    1.  **CSS Enhancements (`city-view.css`):**
-//        -   Experiment with basic 3D perspective on `#city-container` and transforms on `.city-object` (e.g., `transform: skewX/Y`, `perspective`).
-//        -   Use pseudo-elements (`::before`, `::after`) on `.city-object` to simulate building tops or depth.
-//        -   Vary dimensions (width/height) of `.city-object` based on project stats (requires passing stats data or calculating in JS). Start simply (e.g., height proportional to views).
-//        -   Adjust layout within `.city-object` (thumbnail, info) to fit the new visual style. Maybe thumbnail becomes the "roof"?
-//    2.  **JS Enhancements (`cityViewUI.js`):**
-//        -   Pass necessary stats to CSS via inline styles or data attributes if varying dimensions/styles per project.
+//        -   Experiment with basic 3D perspective on `#city-container` and transforms on `.city-object` (e.g., `transform: skewX/Y`, `perspective`, `rotateX`).
+//        -   Use pseudo-elements (`::before`, `::after`) on `.city-object` to simulate building tops, depth, or roads/foundations.
+//        -   Vary dimensions (width/height) or styles of `.city-object` based on project stats (requires passing stats data or calculating in JS). Start simply (e.g., height proportional to views/likes).
+//        -   Adjust layout *within* `.city-object` (thumbnail, info) to fit the new visual style. Maybe thumbnail becomes the "roof"? Info could overlay or be a "lower floor".
+//    2.  **JS Enhancements (`gameBoardUI.js`):**
+//        -   Pass necessary stats to CSS via inline styles (e.g., `--project-height-factor`) or data attributes if varying dimensions/styles per project.
 
 // **Phase 4: Improving Layout & Responsiveness**
 //    *Objective: Create a more deliberate city layout and ensure usability on different screens.*
 //    1.  **Layout Strategy:** Choose a layout method for `#city-scape`:
-//        -   **Flexbox/Grid (again):** Could create rows/columns of buildings, perhaps with wrapping. Simpler initially.
-//        -   **Absolute Positioning:** Calculate X/Y coordinates for each `.city-object` in JS based on some algorithm (e.g., packing, spiral, based on project date/stats). More complex, more "map-like". Requires careful handling of overlaps and container sizing.
-//        -   **SVG:** Render the city within an SVG element for easier scaling, zooming, and potentially more complex shapes. A bigger leap.
+//        -   **Flexbox/Grid (Rows):** Arrange buildings into rows with wrapping.
+//        -   **Absolute Positioning:** Calculate X/Y coordinates for each `.city-object` based on project data (date, stats) or a packing algorithm. Requires careful handling of overlaps and container sizing. Introduces need for pan/zoom.
+//        -   **SVG:** Render the city within an SVG for scaling/zooming. Larger refactor.
 //    2.  **Responsiveness (`responsive.css`):**
-//        -   Adjust `#city-container` size and overflow handling.
-//        -   Modify the layout strategy or object scaling at different breakpoints. Zoom/pan might become necessary on small screens if using absolute positioning or SVG.
+//        -   Adapt layout strategy for different screen sizes. Pan/zoom might become necessary.
 
 // **Phase 5 & Beyond: Interactivity & Simulation**
 //    *Objective: Add player interaction, movement, simulated elements.*
-//    1.  **Click/Hover Interactions:** Add event listeners to `.city-object` elements (in `cityViewUI.js` or a dedicated `interactions/` module). Trigger actions (display info panel, initiate minigame, spend resources).
-//    2.  **Player Representation:** Add a player marker/avatar to the city view, controlled via input.
-//    3.  **Entities:** Create classes/factories (`entities/`) for NPCs, vehicles, etc., and add them to the city view.
-//    4.  **State Management:** Refine `playerState.js` and potentially add world state management.
-//    5.  **Backend Integration:** Implement saving/loading state if persistence is required.
+//    1.  Click/Hover Interactions on `.city-object`.
+//    2.  Player Representation & Movement.
+//    3.  Simulated Entities (NPCs, vehicles).
+//    4.  Refined State Management.
 
-// --- Proposed File/Directory Structure ---
+// --- Proposed File/Directory Structure (Still relevant for future phases) ---
 /*
 /
 ├── index.html
-├── style.css             # Main CSS import file
-├── config.js             # User config, constants
-├── script.js             # General top-level script (if needed)
-├── api.js                # API interaction logic
-├── ui.js                 # General UI element references/helpers (Profile header, AI text)
+├── style.css
+├── config.js
+├── script.js
+├── api.js
+├── ui.js
 ├── dev-notes.js          # This file
 ├── assets/
 │   └── SITCOMREALITYLOGO.jpg
-├── styles/               # CSS Modules
+├── styles/
 │   ├── base.css
 │   ├── profile.css
 │   ├── ai-text.css
-│   ├── city-view.css     # <-- Styles for the city/project area
-│   ├── game-hud.css      # <-- Styles for the bottom HUD
+│   ├── city-view.css
+│   ├── game-hud.css
 │   └── responsive.css
-├── game-systems/         # Core game logic and systems
+├── game-systems/
 │   ├── core/
-│   │   ├── gameManager.js  # Initializes game systems, main loop (if any)
-│   │   └── playerState.js  # Manages player stats and resources
+│   │   ├── gameManager.js
+│   │   └── playerState.js
 │   ├── ui/
-│   │   ├── cityViewUI.js   # Renders projects as city elements, handles city layout
-│   │   ├── hudUI.js        # Updates the bottom HUD elements
-│   │   └── icons.js        # SVG icon definitions
-│   ├── entities/           # (Future) For NPCs, vehicles, interactive objects
-│   │   # ├── entityFactory.js
-│   │   # └── baseEntity.js
-│   ├── interactions/       # (Future) Handling user input within the city view
-│   │   # └── clickHandler.js
-│   │   # └── playerController.js
-│   └── utilities/          # (Future) Shared helper functions
-│       # └── mathUtils.js
-│       # └── layoutUtils.js # (If using complex positioning)
-├── data/                 # Static data lists
+│   │   ├── gameBoardUI.js   # <-- Renders city scape (consider renaming folder/file later?)
+│   │   ├── gameUI.js        # <-- Updates HUD
+│   │   └── icons.js
+│   ├── entities/           # (Future)
+│   ├── interactions/       # (Future)
+│   └── utilities/          # (Future)
+├── data/
 │   ├── context_terms.js
 │   ├── noun_terms.js
 │   └── adjective_terms.js
-└── lib/                  # (Future) External libs if needed beyond import maps
+└── lib/                  # (Future)
 
 */
 
-// --- Rationale for Structure ---
-// - **Separation of Concerns:** Divides UI rendering (`game-systems/ui`), core state/logic (`game-systems/core`), future simulation (`entities`, `interactions`), static data (`data`), and base configuration/API interaction.
-// - **Scalability:** Makes it easier to add new systems (e.g., inventory, quests, minigames) by creating new modules/directories within `game-systems`.
-// - **Maintainability:** Smaller, focused files are easier to understand, debug, and modify. CSS is componentized.
-// - **Clear Naming:** File and directory names reflect their purpose within the "city simulation" concept.
-
-console.log("Developer notes loaded. Review the proposed changes and structure. Phase 1 completed, ready for Phase 2.");
+console.log("Developer notes loaded. Review the proposed changes and structure. Phase 2 completed, ready for Phase 3.");

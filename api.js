@@ -11,7 +11,7 @@ import {
     setAiResponse,
     setupRefreshAiButton
 } from './ui.js';
-import { displayProjects } from './game-systems/gameBoardUI.js';
+import { displayCityScape } from './game-systems/gameBoardUI.js';
 import { PROFILE_USERNAME, API_TIMEOUT } from './config.js';
 import { CONTEXT_TERMS } from './context_terms.js';
 import { ADJECTIVE_TERMS } from './adjective_terms.js';
@@ -145,8 +145,8 @@ async function fetchFollowCounts(userIdOrUsername) {
 async function fetchUserProjects(username) {
     try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), API_TIMEOUT + 2000);
-        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=50`, {
+        const timer = setTimeout(() => controller.abort(), API_TIMEOUT + 2000); 
+        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100&sort_by=updated_at`, {
             signal: controller.signal
         });
         clearTimeout(timer);
@@ -155,34 +155,37 @@ async function fetchUserProjects(username) {
         }
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        const validProjects = data.projects.data.filter(p => p.project && p.project_revision);
-        displayProjects(validProjects);
+        const validProjects = data.projects.data.filter(p => p.project && p.project_revision && p.project.stats);
+        displayCityScape(validProjects);
     } catch (error) {
         logError(error);
-        console.error("Error rendering game board through gameBoardUI.js");
+        const cityScapeEl = document.getElementById('city-scape');
+        if (cityScapeEl) cityScapeEl.innerHTML = '<p>Failed to load city data.</p>';
+        console.error("Error rendering city scape via gameBoardUI.js");
         throw new Error(`Failed to fetch user projects: ${error.message}`);
     }
 }
 
 async function initProfile() {
-    const gameBoardEl = document.getElementById('city-scape');
+    const cityScapeEl = document.getElementById('city-scape');
     try {
         console.log('Initializing profile...');
         if (!usernameEl || !descriptionEl) {
            throw new Error("Core profile UI elements not found.");
         }
         usernameEl.textContent = 'Loading...';
-        if (gameBoardEl) gameBoardEl.innerHTML = '<p>Loading board...</p>';
+        if (cityScapeEl) cityScapeEl.innerHTML = '<p>Loading city...</p>';
 
         const user = await fetchUserProfile(PROFILE_USERNAME);
         usernameEl.textContent = user.username || 'Anonymous';
         descriptionEl.textContent = user.description || 'Face the farce.';
         const userIdForStats = user.id || PROFILE_USERNAME;
+        const usernameForCounts = user.username || PROFILE_USERNAME;
         const usernameForProjects = user.username || PROFILE_USERNAME;
 
         await Promise.allSettled([
             fetchUserStats(userIdForStats),
-            fetchFollowCounts(usernameForProjects),
+            fetchFollowCounts(usernameForCounts), 
             fetchUserProjects(usernameForProjects),
             generateAiText()
         ]);
@@ -201,8 +204,8 @@ async function initProfile() {
          if (followingCountEl) followingCountEl.textContent = 'N/A';
          if (likesCountEl) likesCountEl.textContent = 'N/A';
          if (viewsCountEl) viewsCountEl.textContent = 'N/A';
-         if (gameBoardEl && gameBoardEl.innerHTML.includes('Loading board...')) {
-             gameBoardEl.innerHTML = '<p>Failed to load game board.</p>';
+         if (cityScapeEl && cityScapeEl.innerHTML.includes('Loading city...')) {
+             cityScapeEl.innerHTML = '<p>Failed to load the city.</p>';
          }
          if (aiResponseEl && aiResponseEl.textContent === 'Thinking...') {
              if (aiPromptEl) aiPromptEl.textContent = 'AI Unavailable';
