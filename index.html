@@ -36,22 +36,27 @@
 
         <main id="board-section">
             <h2>Roll the Dice, Face the Farce</h2>
+            <!-- Objectives Panel moved above city -->
+            <section id="objectives-panel">
+                <h3>Current Objectives</h3>
+                <ul id="objectives-list">
+                    <!-- Objectives will be loaded here by JS -->
+                    <li>Loading objectives...</li>
+                </ul>
+            </section>
+            <!-- End Objectives Panel -->
             <div id="city-container">
                 <div id="city-scape">
-                    <p>Loading board...</p>
+                    <p>Loading city...</p> 
                 </div>
             </div>
+            <!-- Selected Building Panel moved below city container -->
+            <section id="selected-building-info-panel">
+                <!-- Content loaded by JS -->
+                <p>Select a building to see details.</p>
+            </section>
+            <!-- End Selected Building Panel -->
         </main>
-
-        <!-- New Objectives Panel -->
-        <section id="objectives-panel">
-            <h3>Current Objectives</h3>
-            <ul id="objectives-list">
-                <!-- Objectives will be loaded here by JS -->
-                <li>Loading objectives...</li>
-            </ul>
-        </section>
-        <!-- End Objectives Panel -->
 
     </div>
 
@@ -80,12 +85,10 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                await initProfile(); // Initialize profile (fetches projects, displays board)
-                initGame();         // Then initialize game systems (sets up HUD, objectives)
+                await initProfile(); 
+                initGame();         
             } catch (error) {
                 console.error("Initialization failed:", error);
-                // Handle potential init failures (e.g., display error messages)
-                // Basic error message for user if profile fails badly
                 const userEl = document.getElementById('username');
                 if (userEl && userEl.textContent === 'Loading...') {
                     userEl.textContent = 'Error';

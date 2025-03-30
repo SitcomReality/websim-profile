@@ -17,14 +17,17 @@ function createBuildingHTML(project, project_revision, site) {
     const comments = project.stats?.comments ?? 0;
     const buildingId = project.id;
 
-    // Calculate a subtle color variation based on project ID for visual diversity
+    // Calculate a subtle color/style variation based on project ID for visual diversity
     // Simple hash function to get a value between 0 and 1
     let hash = 0;
     for (let i = 0; i < buildingId.length; i++) {
         hash = buildingId.charCodeAt(i) + ((hash << 5) - hash);
         hash = hash & hash; // Convert to 32bit integer
     }
-    const colorVariation = Math.abs(hash % 100) / 100; // Value 0 to 0.99
+    const variationSeed = Math.abs(hash);
+    const colorVariation = (variationSeed % 100) / 100; // Value 0 to 0.99
+    const widthVariation = ((variationSeed % 21) - 10) / 100; // Value -0.10 to +0.10 (-10% to +10%)
+    const roofStyleVariation = variationSeed % 3; // Value 0, 1, or 2 for different roof styles
 
     // Base color for sides/top - slightly darker than the board space bg
     const baseSideColor = 'hsl(240, 10%, 15%)';
@@ -35,8 +38,13 @@ function createBuildingHTML(project, project_revision, site) {
     const sideColor = `hsl(240, 10%, ${sideLightness.toFixed(0)}%)`;
     const topColor = `hsl(240, 10%, ${topLightness.toFixed(0)}%)`;
 
-    // Calculate width variation factor (Phase 7.4)
-    const widthVariationFactor = 0.85 + (colorVariation * 0.3); // Range 0.85 to 1.15
+
+    // Add width and roof style variations as CSS variables for the specific building element
+    const buildingStyle = `
+        --building-width-variation: ${widthVariation.toFixed(2)};
+        --roof-detail-style: ${roofStyleVariation};
+        --animation-delay: ${(variationSeed % 10) * 0.05}s;
+    `; // Use variationSeed for animation delay to prevent correlation with width/color
 
 
     return `
@@ -68,6 +76,7 @@ function createBuildingHTML(project, project_revision, site) {
         </div>
         <div class="building-face building-face-top" style="background-color: ${topColor};"></div>
         <div class="building-face building-face-left" style="background-color: ${sideColor};"></div>
+        <div class="building-roof-detail"></div>
     `;
 }
 
@@ -104,11 +113,11 @@ async function displayCityScape(projectsData) {
         console.error("City scape element not found!");
         return;
     }
-    cityScapeEl.innerHTML = ''; 
+    cityScapeEl.innerHTML = '';
 
     if (!projectsData || projectsData.length === 0) {
-        cityScapeEl.innerHTML = '<p>No city objects to display.</p>'; 
-        if (selectedBuildingInfoPanelEl) selectedBuildingInfoPanelEl.innerHTML = ''; 
+        cityScapeEl.innerHTML = '<p>No city objects to display.</p>';
+        if (selectedBuildingInfoPanelEl) selectedBuildingInfoPanelEl.innerHTML = '';
         return;
     }
 
@@ -130,8 +139,23 @@ async function displayCityScape(projectsData) {
         cityObjectDiv.dataset.comments = project.stats.comments ?? 0;
         cityObjectDiv.dataset.link = site ? `https://websim.ai/c/${site.id}` : `https://websim.ai/p/${project.id}`;
 
-        // Generate the 3D building HTML
-        cityObjectDiv.innerHTML = createBuildingHTML(project, project_revision, site);
+        // Generate the 3D building HTML and style variations
+        const buildingHTML = createBuildingHTML(project, project_revision, site);
+        cityObjectDiv.innerHTML = buildingHTML;
+
+        // Apply variations via style attribute
+        let hash = 0;
+        for (let i = 0; i < project.id.length; i++) {
+            hash = project.id.charCodeAt(i) + ((hash << 5) - hash); hash = hash & hash;
+        }
+        const variationSeed = Math.abs(hash);
+        const widthVariation = ((variationSeed % 21) - 10) / 100; // -0.10 to +0.10
+        const roofStyleVariation = variationSeed % 3; // 0, 1, or 2
+        const animationDelay = (variationSeed % 10) * 0.05; // Stagger animation
+
+        cityObjectDiv.style.setProperty('--building-width-variation', widthVariation.toFixed(2));
+        cityObjectDiv.style.setProperty('--roof-detail-style', roofStyleVariation);
+        cityObjectDiv.style.setProperty('--animation-delay', `${animationDelay}s`);
 
         // Add click listener to the main city object, not just the card
         cityObjectDiv.addEventListener('click', (event) => {
@@ -152,7 +176,7 @@ async function displayCityScape(projectsData) {
                 link: cityObjectDiv.dataset.link
             };
 
-            setSelectedBuilding(clickedProjectId, projectData); 
+            setSelectedBuilding(clickedProjectId, projectData);
 
             updateBuildingSelectionHighlight(getPlayerState().selectedBuildingId);
         });
@@ -162,7 +186,7 @@ async function displayCityScape(projectsData) {
         const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5;
         const heightFactor = Math.max(0.6, Math.min(2.5, baseHeightFactor));
         cityObjectDiv.style.setProperty('--building-height-factor', heightFactor);
-        cityObjectDiv.style.setProperty('--animation-delay', `${(index * 0.05)}s`);
+        // cityObjectDiv.style.setProperty('--animation-delay', `${(index * 0.05)}s`); // Use hash-based delay now
 
         cityScapeEl.appendChild(cityObjectDiv);
     });
