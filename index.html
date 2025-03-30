@@ -5,14 +5,6 @@
     <title>SitcomReality's Profile</title>
     <!-- Main CSS file that imports others -->
     <link rel="stylesheet" href="style.css">
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
-        }
-      }
-      </script>
 </head>
 <body>
     <div id="profile-container">
@@ -67,11 +59,6 @@
         <!-- Other HUD sections can go here later -->
     </footer>
 
-    <!-- Initialize Background Separately -->
-    <script type="module">
-        import { initThreeJS } from './background.js';
-        document.addEventListener('DOMContentLoaded', initThreeJS);
-    </script>
     <!-- Initialize Profile and Game -->
     <script type="module">
         import { initProfile } from './api.js';
