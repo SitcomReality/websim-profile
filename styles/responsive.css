@@ -1,0 +1,176 @@
+/* --- Responsive --- */
+
+@media (max-width: 1200px) {
+    #game-board {
+        grid-template-columns: repeat(6, minmax(180px, 1fr));
+        min-width: calc(6 * 180px + 5 * 15px);
+    }
+}
+
+
+@media (max-width: 900px) {
+    #game-board {
+        grid-template-columns: repeat(5, minmax(170px, 1fr));
+        min-width: calc(5 * 170px + 4 * 15px);
+        gap: 12px;
+    }
+    .board-space {
+        border-radius: 6px;
+    }
+    .project-info {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    .project-stats {
+        padding-top: 6px;
+    }
+    .project-link-button {
+        width: 24px;
+        height: 24px;
+        top: 6px;
+        right: 6px;
+    }
+    .project-link-button svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    #player-stats-container {
+        gap: 10px;
+        justify-content: flex-start; 
+        padding: 5px 10px; 
+    }
+    #player-stats-container span[id^="stat-"] {
+        font-size: 0.85em;
+        padding: 2px 6px;
+    }
+    #player-stats-container .icon {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 80px; 
+    }
+    #profile-header {
+        flex-direction: column;
+        align-items: flex-start; 
+        text-align: center; 
+    }
+
+    #avatar-container {
+        margin-right: 0;
+        margin-bottom: 20px;
+        align-self: center; 
+    }
+
+    #user-info {
+        width: 100%;
+        text-align: center;
+    }
+    #user-info h1 {
+        font-size: 2.5rem; 
+    }
+    #user-info #stats {
+        display: flex; 
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    #ai-text-container {
+        margin-left: 0;
+        width: 100%;
+        max-width: none;
+        margin-top: 20px;
+        text-align: left; 
+        border-left: none;
+        border-top: 4px solid var(--tertiary-color);
+        box-sizing: border-box;
+    }
+
+    #avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    #game-board {
+        grid-template-columns: repeat(4, minmax(160px, 1fr)); 
+        min-width: calc(4 * 160px + 3 * 10px);
+        gap: 10px;
+        padding: 10px;
+    }
+    .board-space {
+        border-radius: 5px;
+    }
+
+    #game-hud {
+        padding: 5px 10px; 
+    }
+
+    #player-stats-container {
+        font-size: 0.8em;
+        justify-content: space-around; 
+    }
+
+}
+
+@media (max-width: 480px) {
+    #profile-container {
+        margin: 20px 10px; 
+        padding: 15px;
+    }
+
+    #user-info h1 {
+        font-size: 2rem; 
+    }
+
+    #user-info p {
+        font-size: 1em;
+    }
+    #stats span {
+        font-size: 0.9em; 
+    }
+
+    #ai-text-container {
+        font-size: 0.85em;
+    }
+
+    #game-board {
+        grid-template-columns: repeat(3, minmax(140px, 1fr)); 
+        min-width: calc(3 * 140px + 2 * 10px);
+        gap: 8px;
+        padding: 8px;
+    }
+    .project-info {
+        font-size: 0.8em;
+    }
+    .project-description {
+        -webkit-line-clamp: 1; 
+    }
+    .project-stats svg {
+        width: 10px;
+        height: 10px;
+    }
+
+
+    #game-hud {
+        padding: 3px 5px;
+    }
+    #player-stats-container {
+        gap: 5px;
+        font-size: 0.75em; 
+    }
+    #player-stats-container span[id^="stat-"] {
+        padding: 2px 4px;
+    }
+    #player-stats-container .icon {
+        width: 14px;
+        height: 14px;
+    }
+    #player-stats-container .value {
+        min-width: 15px;
+    }
+}

@@ -1,0 +1,84 @@
+/* New file */
+#profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    gap: 20px;
+}
+
+#avatar-container {
+    margin-right: 30px;
+    flex-shrink: 0;
+}
+
+#avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 5px solid var(--primary-color);
+    transition: transform 0.3s ease;
+}
+
+#avatar:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+#user-info {
+    flex-grow: 1;
+    min-width: 250px;
+}
+
+#user-info h1 {
+    margin: 0 0 10px 0;
+    font-family: 'Lobster', 'Verdana', SANS-SERIF;
+    font-size: 3rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: repeating-linear-gradient(
+    to right,
+    #ff0000 0,
+    #ff7f00 15%,
+    #ffff00 30%,
+    #00ff00 45%,
+    #0000ff 60%,
+    #4b0082 75%,
+    #9400d3 90%,
+    #d100d3 95%, 
+    #ff004e 100%, 
+    #ff0000 105% 
+  );
+    background-size: 200% 100%;
+    animation: rainbowFlow 5s linear infinite;
+}
+
+#user-info p {
+    margin: 0 0 15px 0;
+    font-size: 1.1em;
+    color: #b0b0b0;
+}
+
+#stats span {
+    margin-right: 20px;
+    font-weight: bold;
+    color: var(--tertiary-color);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+}
+#stats span:last-child {
+    margin-right: 0;
+}
+#stats span span { 
+    margin-right: 0;
+    color: var(--text-color); 
+    font-size: 1.1em;
+}

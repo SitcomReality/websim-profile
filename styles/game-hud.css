@@ -1,0 +1,50 @@
+/* New file */
+#game-hud {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--hud-bg);
+    border-top: 1px solid var(--hud-border);
+    padding: 5px 20px; /* Default, adjusted in responsive */
+    box-sizing: border-box;
+    z-index: 100;
+    backdrop-filter: blur(3px);
+}
+
+#player-stats-container {
+    display: flex;
+    justify-content: center; /* Default, adjusted in responsive */
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px; /* Default, adjusted in responsive */
+    color: var(--hud-text-color);
+    font-size: 0.9em; /* Default, adjusted in responsive */
+}
+
+#player-stats-container span[id^="stat-"] { /* Style spans with IDs starting with "stat-" */
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px; /* Default, adjusted in responsive */
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+#player-stats-container .icon {
+    display: inline2;
+    width: 18px; /* Default, adjusted in responsive */
+    height: 18px;
+}
+
+#player-stats-container .icon svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--hud-icon-color); /* Use variable for icon color */
+}
+
+#player-stats-container .value {
+    font-weight: bold;
+    min-width: 20px; /* Default, adjusted in responsive */
+    text-align: right;
+}

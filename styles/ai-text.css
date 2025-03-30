@@ -1,0 +1,68 @@
+/* New file */
+#ai-text-container {
+    background: rgba(40, 40, 40, 0.7);
+    border-left: 4px solid var(--tertiary-color);
+    padding: 15px;
+    border-radius: 5px;
+    max-width: 300px;
+    min-width: 200px;
+    font-size: 0.9em;
+    flex-shrink: 0;
+    margin-left: auto;
+    position: relative;
+    padding-right: 40px; /* Space for the button */
+}
+
+#ai-text-container p {
+    margin: 0;
+    color: #ccc;
+}
+
+#ai-text-container #ai-prompt {
+    font-style: italic;
+    color: #888;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+}
+
+#ai-text-container #ai-response {
+    color: var(--text-color);
+    line-height: 1.4;
+}
+#ai-text-container #ai-response h3 {
+    font-size: 1.1em;
+    margin: 10px 0 5px;
+    color: var(--secondary-color);
+}
+#ai-text-container #ai-response ul,
+#ai-text-container #ai-response ol {
+    padding-left: 20px;
+    margin: 5px 0;
+}
+#ai-text-container #ai-response li {
+    margin-bottom: 3px;
+}
+
+#refresh-ai-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#refresh-ai-button:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+#refresh-ai-button svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--secondary-color);
+}
