@@ -6,30 +6,24 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-31 (Phase 5.7 Complete)
+ * Updated: 2024-07-31 (Phase 5.8 Complete)
  */
 
-// --- Current State (Post-Phase 5.7 - Building Investigation & Paint Action) ---
+// --- Current State (Post-Phase 5.8 - Sabotage Action) ---
 // 1. `gameUI.js`:
-//    - `updateSelectedBuildingInfo` now includes an "Investigate" and "Paint" button templates.
-//    - "Investigate" button text includes cost (`INVESTIGATION_COST` constant).
-//    - "Paint" button text includes cost (`PAINT_COST` constant).
-//    - Buttons are disabled if player coins/paint < respective costs (checked via `getPlayerState`).
-//    - Added `setupInvestigationButtonListener` and `setupPaintButtonListener` functions.
-//    - Event listeners check costs, call `spendCoins` or `spendPaint` (from `playerState`), apply effects (investigation text, temporary visual effect for paint), and provide feedback.
-// 2. `api.js`:
-//    - Added `generateBuildingInvestigationText(buildingData)` function.
-//    - This function takes building data, constructs a specific prompt for the AI.
-//    - Calls the AI API and updates the main AI text display area (`aiPromptEl`, `aiResponseEl`) with the investigation prompt and result.
-//    - Handles errors during the AI call.
-// 3. `styles/selected-building.css`:
-//    - Added styles for the `.actions` container and the `button` elements within the selected building panel.
-//    - Included styles for `:hover`, `:active`, `:disabled`, and `.error` states for the buttons.
-// 4. `styles/city-view.css`:
-//    - Added `.painted` style animation for the painted building effect.
-// 5. `playerState.js`:
-//    - `spendCoins` function already existed.
-//    - Added `spendPaint` function.
+//    - Added `SABOTAGE_COST` constant.
+//    - Added "Sabotage" button template to `updateSelectedBuildingInfo`, checking grenade cost.
+//    - Added `setupSabotageButtonListener`.
+//    - Listener checks grenade cost, calls `spendGrenade` (from `playerState`).
+//    - Applies `.sabotaged` class and a shake animation (`style.animation`) to the target `.city-object` for visual feedback.
+//    - Removes class/resets animation after a timeout.
+//    - Handles insufficient funds.
+// 2. `playerState.js`:
+//    - Added `spendGrenade` function and exported it.
+//    - Updated logic in `updatePlayerState` to refresh the selected building panel if grenade count changes while a building is selected.
+// 3. `styles/city-view.css`:
+//    - Added `.sabotaged` style (grayscale/contrast filter on card elements).
+//    - Added `@keyframes shake` for the sabotage animation.
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
@@ -44,24 +38,29 @@
 //    5.5: Building Actions - "Investigate" (Completed)
 //    5.6: Refine Investigation Feedback (Deferred - Current system is functional)
 //    5.7: Building Actions - "Paint" (Completed)
+//    5.8: Building Actions - "Sabotage" (Completed - Basic visual effect)
 
 // --- Next Steps ---
 
 // **Phase 5 Continued: Interactivity & Simulation**
-//    *Objective: Add more actions, refine existing ones, integrate simulation elements.*
-//    5.8 **More Building Actions (Conceptual):**
-//        - *Proposal:* Add another action, e.g., "Upgrade" (costs Gems?), "Sabotage" (costs Grenades?).
-//        - *Example:* "Sabotage" button (cost: 1 Grenade) - could deduct grenade, maybe temporarily decrease the building's "HP" (if we add that) or apply a negative visual effect (e.g., smoke overlay?).
-//        - *Action:*
-//            a. Define a concept for "Sabotage" effect (e.g., visual debuff, stat reduction?).
-//            b. Add "Sabotage" button template/listener in `gameUI.js`, check grenade cost.
-//            c. Implement `spendGrenade` in `playerState.js`.
-//            d. Implement visual/stat effect triggered by the action.
+//    *Objective: Integrate player stats more meaningfully, potentially add random events.*
 //    5.9 **Integrate Player HP:**
 //        - *Current:* HP exists in `playerState` but isn't affected by anything.
-//        - *Proposal:* Link certain actions (e.g., failed Sabotage?) or random events to HP loss. Add a way to recover HP (e.g., "Rest" action, item use?).
-//        - *Action:* Decide on HP loss/gain mechanisms and implement corresponding logic in action listeners or a future event system.
+//        - *Proposal:*
+//            - Option A: Link failed Sabotage (or other future risky actions) to HP loss. (Requires adding failure chance to actions).
+//            - Option B: Introduce simple random events (e.g., occasionally a popup: "Minor reality tremor! -2 HP").
+//            - Option C: Add a "Rest" action (maybe costs Coins or time?) to recover HP.
+//        - *Action (Focus on Option B for initial implementation):*
+//            a. Create a simple event system (e.g., in `simulation.js` or a new `events.js`).
+//            b. Set up a `setInterval` to occasionally trigger a random event check.
+//            c. Define a simple "HP loss" event.
+//            d. When triggered, call `changeHp` from `playerState.js`.
+//            e. Add simple visual feedback (e.g., brief screen shake, message in a temporary notification area?).
+//    5.10 **Building Stats (Conceptual):**
+//        - *Current:* Buildings only have display stats (views, likes).
+//        - *Proposal:* Give buildings internal stats (e.g., "Integrity" or "HP") that actions like "Sabotage" could affect. "Upgrade" action could increase them.
+//        - *Action:* Defer until core player loop is more established.
 
-// **Focus for next step:** Implement the "Sabotage" action concept (Phase 5.8). Update `gameUI.js` template/listener, add `spendGrenade` to `playerState.js`, add a simple visual feedback (e.g., temporary class). Update `dev-notes.js`.
+// **Focus for next step:** Implement simple random events affecting Player HP (Phase 5.9, Option B). Create basic event trigger, call `changeHp`, add minimal feedback. Update `dev-notes.js`.
 
-console.log("Developer notes loaded. Phase 5.7 Paint Action implemented. Ready for Phase 5.8.");
+console.log("Developer notes loaded. Phase 5.8 Sabotage Action implemented. Ready for Phase 5.9.");

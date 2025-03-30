@@ -91,6 +91,19 @@
     100% { outline: 0px solid rgba(254, 202, 87, 0); outline-offset: 0px; } 
 }
 
+.city-object.sabotaged::before, 
+.city-object.sabotaged::after,
+.city-object.sabotaged .project-card {
+    filter: grayscale(80%) contrast(1.2) brightness(0.7);
+    transition: filter 0.3s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0) rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 0) rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px); }
+    20%, 40%, 60%, 80% { transform: translate(2px, 0) rotateX(60deg) rotateZ(-45deg) translateY(-30px) translateZ(20px); }
+}
+
 /* --- Project Card Styles (within City Object) --- */
 .project-card {
     background-color: var(--board-space-bg);

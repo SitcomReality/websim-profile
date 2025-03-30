@@ -52,11 +52,11 @@ function updatePlayerState(newState) {
 
      // Notify Selected Building Info Panel if data changed
     if ('selectedBuildingData' in newState && JSON.stringify(previousState.selectedBuildingData) !== JSON.stringify(currentState.selectedBuildingData)) {
-        // Also update the panel if relevant resources (coins, paint etc.) changed,
+        // Also update the panel if relevant resources (coins, paint, grenades etc.) changed,
         // as button disabled states might need refreshing
          updateSelectedBuildingInfo(currentState.selectedBuildingData);
-    } else if (changedKeys.some(key => ['coins', 'paint'].includes(key)) && currentState.selectedBuildingData) {
-        // Refresh panel if coins or paint changed while a building is selected
+    } else if (changedKeys.some(key => ['coins', 'paint', 'grenades'].includes(key)) && currentState.selectedBuildingData) {
+        // Refresh panel if coins, paint or grenades changed while a building is selected
         updateSelectedBuildingInfo(currentState.selectedBuildingData);
     }
 }
@@ -89,6 +89,14 @@ function spendPaint(amount) {
     return false; // Not enough paint
 }
 
+// --- Add function to spend grenades ---
+function spendGrenade(amount) {
+    if (currentState.grenades >= amount) {
+        updatePlayerState({ grenades: currentState.grenades - amount });
+        return true; // Transaction successful
+    }
+    return false; // Not enough grenades
+}
 
 // --- Function to update selected building ---
 function setSelectedBuilding(projectId, projectData = null) {
@@ -112,7 +120,8 @@ export {
     addScore,
     changeHp,
     spendCoins,
-    spendPaint, // Export the new function
-    setSelectedBuilding // Export the new function
+    spendPaint, 
+    spendGrenade, 
+    setSelectedBuilding 
     // Export other specific updaters here
 };

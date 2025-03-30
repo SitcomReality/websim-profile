@@ -1,5 +1,5 @@
 import { getIcon } from './icons.js';
-import { getPlayerState, spendCoins, spendPaint } from './playerState.js';
+import { getPlayerState, spendCoins, spendPaint, spendGrenade } from './playerState.js';
 import { generateBuildingInvestigationText } from '../api.js';
 
 // References to HUD elements
@@ -28,6 +28,7 @@ const selectedBuildingInfoPanelEl = document.getElementById('selected-building-i
 // --- Constants ---
 const INVESTIGATION_COST = 10;
 const PAINT_COST = 50; 
+const SABOTAGE_COST = 1; // Cost for sabotage action
 
 // --- Update HUD ---
 function updateHUD(playerState) {
@@ -133,7 +134,7 @@ function setupPaintButtonListener() {
                 } else {
                     console.warn("Paint spending failed unexpectedly after check.");
                     paintButton.textContent = `System Error`;
-                    paintButton.disabled = false;
+                    paintButton.disabled = false; 
                 }
 
             } else {
@@ -144,7 +145,56 @@ function setupPaintButtonListener() {
                     const latestState = getPlayerState();
                     updateSelectedBuildingInfo(latestState.selectedBuildingData); 
                     paintButton.classList.remove('error'); 
-                }, 1500);
+                }, 1500); 
+            }
+        });
+    }
+}
+
+// --- Setup Sabotage Button Listener ---
+function setupSabotageButtonListener() {
+    const sabotageButton = document.getElementById('sabotage-button');
+    if (sabotageButton) {
+        sabotageButton.addEventListener('click', () => {
+            const currentState = getPlayerState();
+            if (!currentState.selectedBuildingData || !currentState.selectedBuildingId) {
+                console.warn("Sabotage clicked but no building selected.");
+                return;
+            }
+
+            if (currentState.grenades >= SABOTAGE_COST) {
+                sabotageButton.disabled = true;
+                sabotageButton.textContent = 'Sabotaging...';
+
+                if (spendGrenade(SABOTAGE_COST)) {
+                    const buildingElement = document.querySelector(`.city-object[data-project-id="${currentState.selectedBuildingId}"]`);
+                    if (buildingElement) {
+                        buildingElement.classList.add('sabotaged');
+                        buildingElement.style.animation = 'shake 0.5s ease-in-out forwards, popIn 0.5s ease forwards var(--animation-delay, 0s)';
+                        setTimeout(() => {
+                            buildingElement.classList.remove('sabotaged');
+                            buildingElement.style.animation = 'popIn 0.5s ease forwards var(--animation-delay, 0s)';
+                        }, 2000);
+                    }
+                    console.log(`Sabotaged building ${currentState.selectedBuildingId}`);
+                    const latestState = getPlayerState();
+                    updateSelectedBuildingInfo(latestState.selectedBuildingData);
+
+                } else {
+                    console.warn("Grenade spending failed unexpectedly after check.");
+                    sabotageButton.textContent = `System Error`;
+                    sabotageButton.disabled = false; 
+                }
+
+            } else {
+                const originalText = sabotageButton.textContent;
+                sabotageButton.textContent = 'Not Enough Grenades!';
+                sabotageButton.classList.add('error');
+                setTimeout(() => {
+                    const latestState = getPlayerState();
+                    updateSelectedBuildingInfo(latestState.selectedBuildingData); 
+                    sabotageButton.classList.remove('error'); 
+                }, 1500); 
             }
         });
     }
@@ -158,6 +208,7 @@ function updateSelectedBuildingInfo(projectData) {
         const currentState = getPlayerState();
         const canAffordInvestigation = currentState.coins >= INVESTIGATION_COST;
         const canAffordPaint = currentState.paint >= PAINT_COST;
+        const canAffordSabotage = currentState.grenades >= SABOTAGE_COST;
 
         selectedBuildingInfoPanelEl.innerHTML = `
             <h4>${projectData.title || 'Untitled Building'}</h4>
@@ -183,16 +234,20 @@ function updateSelectedBuildingInfo(projectData) {
                 <button id="paint-button" ${!canAffordPaint ? 'disabled' : ''} title="${!canAffordPaint ? 'Not enough paint' : 'Apply a coat of paint'}">
                     Paint (${PAINT_COST} Paint)
                 </button>
+                <button id="sabotage-button" ${!canAffordSabotage ? 'disabled' : ''} title="${!canAffordSabotage ? 'Not enough grenades' : 'Sabotage this building'}">
+                    Sabotage (${SABOTAGE_COST} Grenades)
+                </button>
                  <!-- More actions can be added here -->
             </div>
         `;
         selectedBuildingInfoPanelEl.classList.add('visible');
         setupInvestigationButtonListener(); 
         setupPaintButtonListener(); 
+        setupSabotageButtonListener(); 
     } else {
         selectedBuildingInfoPanelEl.innerHTML = '<p>Select a building to see details.</p>';
         selectedBuildingInfoPanelEl.classList.remove('visible');
     }
 }
 
-export { updateHUD, setupIcons, updateSelectedBuildingInfo, INVESTIGATION_COST, PAINT_COST }; 
+export { updateHUD, setupIcons, updateSelectedBuildingInfo, INVESTIGATION_COST, PAINT_COST, SABOTAGE_COST };
