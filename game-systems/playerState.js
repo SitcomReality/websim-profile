@@ -1,4 +1,4 @@
-import { updateHUD } from './gameUI.js'; // Correct the import name
+import { updateHUD, updateSelectedBuildingInfo } from './gameUI.js'; // Correct the import name and add new import
 
 const initialState = {
     score: 0,
@@ -10,6 +10,7 @@ const initialState = {
     limbs: 4,
     existentialInertia: 50,
     selectedBuildingId: null, // Track the selected building ID
+    selectedBuildingData: null, // Store data of the selected building
 };
 
 // For now, we just expose the initial state.
@@ -42,13 +43,16 @@ function updatePlayerState(newState) {
         updateHUD(currentState);
     }
 
-    // Notify City View if selected building changed
+    // Notify City View highlight if selected building ID changed
     if ('selectedBuildingId' in newState && previousState.selectedBuildingId !== currentState.selectedBuildingId) {
-        if (window.updateBuildingSelectionHighlight) {
-            window.updateBuildingSelectionHighlight(currentState.selectedBuildingId);
-        } else {
-            console.warn("window.updateBuildingSelectionHighlight not found. Cannot update selection visually.");
-        }
+        // The visual highlight update is now handled directly in gameBoardUI.js's listener
+        // and via the exposed window function if needed elsewhere, but primarily driven by the click
+        // No need to call window.updateBuildingSelectionHighlight here anymore as it's tied to the UI event
+    }
+
+     // Notify Selected Building Info Panel if data changed
+    if ('selectedBuildingData' in newState && JSON.stringify(previousState.selectedBuildingData) !== JSON.stringify(currentState.selectedBuildingData)) {
+        updateSelectedBuildingInfo(currentState.selectedBuildingData);
     }
 }
 
@@ -72,11 +76,18 @@ function spendCoins(amount) {
 }
 
 // --- Function to update selected building ---
-function setSelectedBuilding(projectId) {
+function setSelectedBuilding(projectId, projectData = null) {
     // Allow toggling off selection by clicking the same building again
-    const newSelectedId = currentState.selectedBuildingId === projectId ? null : projectId;
-    updatePlayerState({ selectedBuildingId: newSelectedId });
+    const isTogglingOff = currentState.selectedBuildingId === projectId;
+    const newSelectedId = isTogglingOff ? null : projectId;
+    const newSelectedData = isTogglingOff ? null : projectData;
+
+    updatePlayerState({
+        selectedBuildingId: newSelectedId,
+        selectedBuildingData: newSelectedData
+    });
     console.log("Selected Building ID set to:", newSelectedId);
+    console.log("Selected Building Data:", newSelectedData);
 }
 
 // Export functions for external use

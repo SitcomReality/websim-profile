@@ -1,0 +1,72 @@
+/* New file for selected building panel styles */
+#selected-building-info-panel {
+    background: rgba(30, 30, 40, 0.7);
+    border-top: 2px solid var(--tertiary-color);
+    border-radius: 0 0 8px 8px; /* Match bottom corners */
+    padding: 15px;
+    margin-top: -20px; /* Overlap slightly with the city container */
+    position: relative;
+    z-index: 5; /* Below header/AI but above HUD */
+    color: #ccc;
+    font-size: 0.9em;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0; /* Hidden by default */
+    transform: translateY(-10px);
+    height: 0; /* Start collapsed */
+    overflow: hidden;
+    visibility: hidden;
+}
+
+#selected-building-info-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto; /* Expand to content height */
+    min-height: 50px; /* Ensure it's visible even if empty */
+    visibility: visible;
+}
+
+#selected-building-info-panel p:first-child {
+    margin-top: 0;
+}
+#selected-info-panel p:last-child {
+    margin-bottom: 0;
+}
+
+#selected-building-info-panel h4 {
+    margin: 0 0 8px 0;
+    color: var(--secondary-color);
+    font-size: 1.2em;
+}
+
+#selected-building-info-panel .description {
+    font-style: italic;
+    color: #a0a0a0;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.8em; /* Approx 2 lines */
+}
+
+#selected-building-info-panel .stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+    margin-top: 10px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+}
+#selected-building-info-panel .stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #bbb;
+}
+#selected-building-info-panel .stats svg {
+    width: 14px;
+    height: 14px;
+    fill: var(--tertiary-color);
+}

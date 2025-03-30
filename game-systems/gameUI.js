@@ -20,6 +20,9 @@ const paintIconEl = document.querySelector('#stat-paint .icon');
 const limbsIconEl = document.querySelector('#stat-limbs .icon');
 const inertiaIconEl = document.querySelector('#stat-inertia .icon');
 
+// Reference to Selected Building Info Panel element
+const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel');
+
 function updateHUD(playerState) {
     console.log("Updating HUD with state:", playerState);
     if (scoreEl) scoreEl.textContent = playerState.score ?? 0;
@@ -43,4 +46,35 @@ function setupIcons() {
     if (inertiaIconEl) inertiaIconEl.innerHTML = getIcon('existentialInertia');
 }
 
-export { updateHUD, setupIcons };
+// Function to update the Selected Building Info Panel
+function updateSelectedBuildingInfo(projectData) {
+    if (!selectedBuildingInfoPanelEl) return;
+
+    if (projectData) {
+        selectedBuildingInfoPanelEl.innerHTML = `
+            <h4>${projectData.title || 'Untitled Building'}</h4>
+            <p class="description">${projectData.description || 'No details available.'}</p>
+            <div class="stats">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    ${projectData.views ?? 'N/A'}
+                </span>
+                <span>
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    ${projectData.likes ?? 'N/A'}
+                </span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+                    ${projectData.comments ?? 'N/A'}
+                </span>
+                <!-- Add more details or action buttons here later -->
+            </div>
+        `;
+        selectedBuildingInfoPanelEl.classList.add('visible');
+    } else {
+        selectedBuildingInfoPanelEl.innerHTML = '<p>Select a building to see details.</p>';
+        selectedBuildingInfoPanelEl.classList.remove('visible');
+    }
+}
+
+export { updateHUD, setupIcons, updateSelectedBuildingInfo };

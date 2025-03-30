@@ -1,14 +1,14 @@
 import { getIcon } from './icons.js';
 // Import the function to update player state
-import { setSelectedBuilding } from './playerState.js';
+import { setSelectedBuilding, getPlayerState } from './playerState.js'; 
 
 // --- DOM Elements ---
 const cityScapeEl = document.getElementById('city-scape');
+const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel'); 
 
 // Helper to generate HTML for a project card within a city object
 function createProjectCardHTML(project, project_revision, site) {
     const thumbnailUrl = project_revision.current_screenshot_url || (site ? `https://images.websim.ai/v1/site/${site.id}/600` : 'placeholder.png');
-    // Use project URL for the link, as site might not always exist
     const projectUrl = `https://websim.ai/p/${project.id}`;
     const displayUrl = site ? `https://websim.ai/c/${site.id}` : projectUrl;
     const views = project.stats?.views ?? 0;
@@ -55,7 +55,7 @@ function updateBuildingSelectionHighlight(selectedId) {
         const projectId = obj.dataset.projectId;
         if (projectId && projectId === selectedId) {
             obj.classList.add('selected');
-            selectedElement = obj; // Store the selected element
+            selectedElement = obj; 
         } else {
             obj.classList.remove('selected');
         }
@@ -64,26 +64,25 @@ function updateBuildingSelectionHighlight(selectedId) {
     // --- Scroll into View ---
     if (selectedElement) {
         selectedElement.scrollIntoView({
-            behavior: 'smooth', // Smooth scrolling
-            block: 'nearest',   // Align to nearest edge vertically (less important here)
-            inline: 'center'    // Center the element horizontally within the scroll container
+            behavior: 'smooth', 
+            block: 'nearest',   
+            inline: 'center'    
         });
         console.log(`Scrolled to center building: ${selectedId}`);
     }
     // --- End Scroll into View ---
 }
-// Expose the highlight function globally for playerState to call
-window.updateBuildingSelectionHighlight = updateBuildingSelectionHighlight;
 
 async function displayCityScape(projectsData) {
     if (!cityScapeEl) {
         console.error("City scape element not found!");
         return;
     }
-    cityScapeEl.innerHTML = ''; // Clear previous content
+    cityScapeEl.innerHTML = ''; 
 
     if (!projectsData || projectsData.length === 0) {
-        cityScapeEl.innerHTML = '<p>No city objects to display.</p>'; // Handle empty data
+        cityScapeEl.innerHTML = '<p>No city objects to display.</p>'; 
+        if (selectedBuildingInfoPanelEl) selectedBuildingInfoPanelEl.innerHTML = ''; 
         return;
     }
 
@@ -97,19 +96,36 @@ async function displayCityScape(projectsData) {
 
         const cityObjectDiv = document.createElement('div');
         cityObjectDiv.classList.add('city-object');
-        // Store project ID for selection logic
         cityObjectDiv.dataset.projectId = project.id;
+        cityObjectDiv.dataset.title = project.title || 'Untitled Project';
+        cityObjectDiv.dataset.description = project.description || 'No description.';
+        cityObjectDiv.dataset.views = project.stats.views ?? 0;
+        cityObjectDiv.dataset.likes = project.stats.likes ?? 0;
+        cityObjectDiv.dataset.comments = project.stats.comments ?? 0;
+        cityObjectDiv.dataset.link = site ? `https://websim.ai/c/${site.id}` : `https://websim.ai/p/${project.id}`;
+
         cityObjectDiv.innerHTML = createProjectCardHTML(project, project_revision, site);
 
-        // --- Add Click Listener ---
         cityObjectDiv.addEventListener('click', (event) => {
-            // Prevent selection if the link button itself was clicked
             if (event.target.closest('.project-link-button')) {
                 return;
             }
-            setSelectedBuilding(project.id); // Call playerState function
+            const clickedProjectId = cityObjectDiv.dataset.projectId;
+            const projectData = {
+                id: clickedProjectId,
+                title: cityObjectDiv.dataset.title,
+                description: cityObjectDiv.dataset.description,
+                views: parseInt(cityObjectDiv.dataset.views, 10),
+                likes: parseInt(cityObjectDiv.dataset.likes, 10),
+                comments: parseInt(cityObjectDiv.dataset.comments, 10),
+                link: cityObjectDiv.dataset.link
+            };
+
+            setSelectedBuilding(clickedProjectId, projectData); 
+
+            updateBuildingSelectionHighlight(getPlayerState().selectedBuildingId);
+
         });
-        // --- End Click Listener ---
 
         const views = project.stats.views ?? 0;
         const baseHeightFactor = Math.log10(views + 1) / 2.5 + 0.5;
@@ -120,19 +136,17 @@ async function displayCityScape(projectsData) {
         cityScapeEl.appendChild(cityObjectDiv);
     });
 
-    // Initial highlight check in case state is loaded with a selection
-    // This requires playerState to be initialized before displayCityScape runs
-    // (Which it should be based on current initProfile logic)
-    try {
-        // Now 'await' is valid here because the function is async
-        const { getPlayerState } = await import('./playerState.js');
-        const initialState = getPlayerState();
-        if (initialState.selectedBuildingId) {
-            updateBuildingSelectionHighlight(initialState.selectedBuildingId);
-        }
-    } catch (e) {
-        console.error("Could not get initial player state for selection highlight:", e);
+    const initialState = getPlayerState();
+    if (initialState.selectedBuildingId) {
+        updateBuildingSelectionHighlight(initialState.selectedBuildingId);
+    }
+    if (window.updateSelectedBuildingInfo) { 
+         window.updateSelectedBuildingInfo(initialState.selectedBuildingData);
+    } else {
+         import('./gameUI.js').then(gameUI => {
+            gameUI.updateSelectedBuildingInfo(initialState.selectedBuildingData);
+         }).catch(e => console.error("Failed to load gameUI for initial info panel update:", e));
     }
 }
 
-export { displayCityScape, updateBuildingSelectionHighlight };
+export { displayCityScape, updateBuildingSelectionHighlight }; 

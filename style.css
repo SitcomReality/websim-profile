@@ -5,4 +5,6 @@
 @import url('./styles/ai-text.css');
 @import url('./styles/city-view.css');
 @import url('./styles/game-hud.css');
+/* Import new selected building style */
+@import url('./styles/selected-building.css');
 @import url('./styles/responsive.css');
