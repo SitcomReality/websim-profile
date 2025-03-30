@@ -82,6 +82,15 @@
     border-color: var(--primary-color); 
 }
 
+.city-object.painted .project-card {
+    animation: paintFlash 1s ease-out;
+}
+
+@keyframes paintFlash {
+    0% { outline: 4px solid var(--secondary-color); outline-offset: 2px; }
+    100% { outline: 0px solid rgba(254, 202, 87, 0); outline-offset: 0px; } 
+}
+
 /* --- Project Card Styles (within City Object) --- */
 .project-card {
     background-color: var(--board-space-bg);

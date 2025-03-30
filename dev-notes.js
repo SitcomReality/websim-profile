@@ -6,25 +6,30 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-31 (Phase 5.5 Complete)
+ * Updated: 2024-07-31 (Phase 5.7 Complete)
  */
 
-// --- Current State (Post-Phase 5.5 - Building Investigation Action) ---
+// --- Current State (Post-Phase 5.7 - Building Investigation & Paint Action) ---
 // 1. `gameUI.js`:
-//    - `updateSelectedBuildingInfo` now includes an "Investigate" button template.
-//    - Button text includes cost (`INVESTIGATION_COST` constant).
-//    - Button is disabled if player coins < cost (checked via `getPlayerState`).
-//    - Added `setupInvestigationButtonListener` function.
-//    - Event listener checks coin cost, calls `spendCoins` (from `playerState`), calls `generateBuildingInvestigationText` (from `api.js`), and provides feedback (button text/state changes for loading, success, error, insufficient funds).
+//    - `updateSelectedBuildingInfo` now includes an "Investigate" and "Paint" button templates.
+//    - "Investigate" button text includes cost (`INVESTIGATION_COST` constant).
+//    - "Paint" button text includes cost (`PAINT_COST` constant).
+//    - Buttons are disabled if player coins/paint < respective costs (checked via `getPlayerState`).
+//    - Added `setupInvestigationButtonListener` and `setupPaintButtonListener` functions.
+//    - Event listeners check costs, call `spendCoins` or `spendPaint` (from `playerState`), apply effects (investigation text, temporary visual effect for paint), and provide feedback.
 // 2. `api.js`:
 //    - Added `generateBuildingInvestigationText(buildingData)` function.
 //    - This function takes building data, constructs a specific prompt for the AI.
 //    - Calls the AI API and updates the main AI text display area (`aiPromptEl`, `aiResponseEl`) with the investigation prompt and result.
 //    - Handles errors during the AI call.
 // 3. `styles/selected-building.css`:
-//    - Added styles for the `.actions` container and the `button` element within the selected building panel.
-//    - Included styles for `:hover`, `:active`, `:disabled`, and `.error` states for the button.
-// 4. `playerState.js`: No changes needed, `spendCoins` already existed.
+//    - Added styles for the `.actions` container and the `button` elements within the selected building panel.
+//    - Included styles for `:hover`, `:active`, `:disabled`, and `.error` states for the buttons.
+// 4. `styles/city-view.css`:
+//    - Added `.painted` style animation for the painted building effect.
+// 5. `playerState.js`:
+//    - `spendCoins` function already existed.
+//    - Added `spendPaint` function.
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
@@ -37,24 +42,26 @@
 //    5.3: Simple Day/Night Cycle (Completed)
 //    5.4: Selected Building Info Panel (Completed)
 //    5.5: Building Actions - "Investigate" (Completed)
+//    5.6: Refine Investigation Feedback (Deferred - Current system is functional)
+//    5.7: Building Actions - "Paint" (Completed)
 
 // --- Next Steps ---
 
 // **Phase 5 Continued: Interactivity & Simulation**
 //    *Objective: Add more actions, refine existing ones, integrate simulation elements.*
-//    5.6 **Refine Investigation Feedback:**
-//        - *Current:* Investigation results appear in the main AI text area.
-//        - *Proposal:* Consider if results should be displayed differently, perhaps temporarily within the building panel itself or a dedicated log area, to avoid overwriting the general AI text too often.
-//        - *Action:* (Low priority for now) Decide on display location. If changing, update `generateBuildingInvestigationText` in `api.js` and potentially add new UI elements/functions.
-//    5.7 **More Building Actions (Conceptual):**
-//        - *Proposal:* Add another action, e.g., "Upgrade" (costs Gems?), "Sabotage" (costs Grenades?), "Paint" (costs Paint?).
-//        - *Example:* "Paint" button (cost: 50 Paint) - could simply deduct paint from `playerState` and visually change the building slightly (e.g., add a temporary overlay or border color change).
+//    5.8 **More Building Actions (Conceptual):**
+//        - *Proposal:* Add another action, e.g., "Upgrade" (costs Gems?), "Sabotage" (costs Grenades?).
+//        - *Example:* "Sabotage" button (cost: 1 Grenade) - could deduct grenade, maybe temporarily decrease the building's "HP" (if we add that) or apply a negative visual effect (e.g., smoke overlay?).
 //        - *Action:*
-//            a. Add a "Paint" button to the template in `gameUI.js`. Check/display paint cost.
-//            b. Add logic to the event listener setup in `gameUI.js` to handle this button (check paint, call `spendPaint` in `playerState.js`).
-//            c. Implement `spendPaint` in `playerState.js`.
-//            d. (Optional Visual Feedback): Add a temporary class or style change to the selected `.city-object` in `gameBoardUI.js` triggered by a successful paint action (might require passing a callback or using a simple event bus).
+//            a. Define a concept for "Sabotage" effect (e.g., visual debuff, stat reduction?).
+//            b. Add "Sabotage" button template/listener in `gameUI.js`, check grenade cost.
+//            c. Implement `spendGrenade` in `playerState.js`.
+//            d. Implement visual/stat effect triggered by the action.
+//    5.9 **Integrate Player HP:**
+//        - *Current:* HP exists in `playerState` but isn't affected by anything.
+//        - *Proposal:* Link certain actions (e.g., failed Sabotage?) or random events to HP loss. Add a way to recover HP (e.g., "Rest" action, item use?).
+//        - *Action:* Decide on HP loss/gain mechanisms and implement corresponding logic in action listeners or a future event system.
 
-// **Focus for next step:** Implement the "Paint" action (Phase 5.7 - Paint). Update `gameUI.js` template/listener, add `spendPaint` to `playerState.js`, add visual feedback if feasible. Update `dev-notes.js`.
+// **Focus for next step:** Implement the "Sabotage" action concept (Phase 5.8). Update `gameUI.js` template/listener, add `spendGrenade` to `playerState.js`, add a simple visual feedback (e.g., temporary class). Update `dev-notes.js`.
 
-console.log("Developer notes loaded. Phase 5.5 Building Investigation implemented. Ready for Phase 5.7 More Building Actions.");
+console.log("Developer notes loaded. Phase 5.7 Paint Action implemented. Ready for Phase 5.8.");

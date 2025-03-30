@@ -1,5 +1,5 @@
 import { getIcon } from './icons.js';
-import { getPlayerState, spendCoins } from './playerState.js';
+import { getPlayerState, spendCoins, spendPaint } from './playerState.js';
 import { generateBuildingInvestigationText } from '../api.js';
 
 // References to HUD elements
@@ -26,8 +26,10 @@ const inertiaIconEl = document.querySelector('#stat-inertia .icon');
 const selectedBuildingInfoPanelEl = document.getElementById('selected-building-info-panel');
 
 // --- Constants ---
-const INVESTIGATION_COST = 10; // Define the cost here
+const INVESTIGATION_COST = 10;
+const PAINT_COST = 50; 
 
+// --- Update HUD ---
 function updateHUD(playerState) {
     console.log("Updating HUD with state:", playerState);
     if (scoreEl) scoreEl.textContent = playerState.score ?? 0;
@@ -40,6 +42,7 @@ function updateHUD(playerState) {
     if (inertiaEl) inertiaEl.textContent = playerState.existentialInertia ?? 0;
 }
 
+// --- Setup Icons ---
 function setupIcons() {
     if (scoreIconEl) scoreIconEl.innerHTML = getIcon('score');
     if (hpIconEl) hpIconEl.innerHTML = getIcon('hp');
@@ -51,7 +54,7 @@ function setupIcons() {
     if (inertiaIconEl) inertiaIconEl.innerHTML = getIcon('existentialInertia');
 }
 
-// Function to setup listener for the investigation button
+// --- Setup Investigation Button Listener ---
 function setupInvestigationButtonListener() {
     const investigateButton = document.getElementById('investigate-button');
     if (investigateButton) {
@@ -63,41 +66,85 @@ function setupInvestigationButtonListener() {
             }
 
             if (currentState.coins >= INVESTIGATION_COST) {
-                // Disable button temporarily to prevent spamming
                 investigateButton.disabled = true;
                 investigateButton.textContent = 'Investigating...';
 
-                // Spend coins
-                spendCoins(INVESTIGATION_COST);
-
-                try {
-                    // Call the API function
-                    await generateBuildingInvestigationText(currentState.selectedBuildingData);
-                    // Re-enable button or change text on success if needed
-                    investigateButton.textContent = `Investigate (${INVESTIGATION_COST} Coins)`;
-                    investigateButton.disabled = false; // Re-enable after successful investigation
-                } catch (error) {
-                    console.error("Investigation failed:", error);
-                    // Handle error - maybe show a message in AI text?
-                    // Give coins back? Or just log error? For now, just log.
-                    investigateButton.textContent = `Error (${INVESTIGATION_COST} Coins)`;
-                    // Optionally re-enable after a delay on error
-                    setTimeout(() => {
-                        investigateButton.disabled = false;
-                        updateSelectedBuildingInfo(currentState.selectedBuildingData); // Refresh panel to show correct state
-                    }, 1500);
+                if (spendCoins(INVESTIGATION_COST)) { 
+                    try {
+                        await generateBuildingInvestigationText(currentState.selectedBuildingData);
+                    } catch (error) {
+                        console.error("Investigation failed:", error);
+                        investigateButton.textContent = `Error (${INVESTIGATION_COST} Coins)`;
+                        investigateButton.classList.add('error');
+                        setTimeout(() => {
+                            investigateButton.classList.remove('error'); 
+                        }, 1500);
+                    } finally {
+                        const latestState = getPlayerState();
+                        updateSelectedBuildingInfo(latestState.selectedBuildingData);
+                    }
+                } else {
+                    console.warn("Coin spending failed unexpectedly after check.");
+                    investigateButton.textContent = `System Error`;
+                    investigateButton.disabled = false; 
                 }
+
             } else {
-                // Not enough coins feedback
                 const originalText = investigateButton.textContent;
                 investigateButton.textContent = 'Not Enough Coins!';
-                investigateButton.classList.add('error'); // Add class for styling
+                investigateButton.classList.add('error');
                 setTimeout(() => {
-                    investigateButton.textContent = originalText;
-                    investigateButton.classList.remove('error');
-                    // Re-evaluate disabled state based on current coins
-                    updateSelectedBuildingInfo(currentState.selectedBuildingData);
-                }, 1500); // Show message for 1.5 seconds
+                    const latestState = getPlayerState();
+                    updateSelectedBuildingInfo(latestState.selectedBuildingData); 
+                    investigateButton.classList.remove('error'); 
+                }, 1500); 
+            }
+        });
+    }
+}
+
+// --- Setup Paint Button Listener ---
+function setupPaintButtonListener() {
+    const paintButton = document.getElementById('paint-button');
+    if (paintButton) {
+        paintButton.addEventListener('click', () => {
+            const currentState = getPlayerState();
+            if (!currentState.selectedBuildingData || !currentState.selectedBuildingId) {
+                console.warn("Paint clicked but no building selected.");
+                return;
+            }
+
+            if (currentState.paint >= PAINT_COST) {
+                paintButton.disabled = true;
+                paintButton.textContent = 'Painting...';
+
+                if (spendPaint(PAINT_COST)) { 
+                    const buildingElement = document.querySelector(`.city-object[data-project-id="${currentState.selectedBuildingId}"]`);
+                    if (buildingElement) {
+                        buildingElement.classList.add('painted');
+                        setTimeout(() => {
+                            buildingElement.classList.remove('painted');
+                        }, 1000);
+                    }
+                    console.log(`Painted building ${currentState.selectedBuildingId}`);
+                    const latestState = getPlayerState();
+                    updateSelectedBuildingInfo(latestState.selectedBuildingData);
+
+                } else {
+                    console.warn("Paint spending failed unexpectedly after check.");
+                    paintButton.textContent = `System Error`;
+                    paintButton.disabled = false;
+                }
+
+            } else {
+                const originalText = paintButton.textContent;
+                paintButton.textContent = 'Not Enough Paint!';
+                paintButton.classList.add('error');
+                setTimeout(() => {
+                    const latestState = getPlayerState();
+                    updateSelectedBuildingInfo(latestState.selectedBuildingData); 
+                    paintButton.classList.remove('error'); 
+                }, 1500);
             }
         });
     }
@@ -108,8 +155,10 @@ function updateSelectedBuildingInfo(projectData) {
     if (!selectedBuildingInfoPanelEl) return;
 
     if (projectData) {
-        const currentCoins = getPlayerState().coins;
-        const canAfford = currentCoins >= INVESTIGATION_COST;
+        const currentState = getPlayerState();
+        const canAffordInvestigation = currentState.coins >= INVESTIGATION_COST;
+        const canAffordPaint = currentState.paint >= PAINT_COST;
+
         selectedBuildingInfoPanelEl.innerHTML = `
             <h4>${projectData.title || 'Untitled Building'}</h4>
             <p class="description">${projectData.description || 'No details available.'}</p>
@@ -128,18 +177,22 @@ function updateSelectedBuildingInfo(projectData) {
                 </span>
             </div>
             <div class="actions">
-                <button id="investigate-button" ${!canAfford ? 'disabled' : ''} title="${!canAfford ? 'Not enough coins' : 'Investigate this building'}">
+                <button id="investigate-button" ${!canAffordInvestigation ? 'disabled' : ''} title="${!canAffordInvestigation ? 'Not enough coins' : 'Investigate this building'}">
                     Investigate (${INVESTIGATION_COST} Coins)
+                </button>
+                <button id="paint-button" ${!canAffordPaint ? 'disabled' : ''} title="${!canAffordPaint ? 'Not enough paint' : 'Apply a coat of paint'}">
+                    Paint (${PAINT_COST} Paint)
                 </button>
                  <!-- More actions can be added here -->
             </div>
         `;
         selectedBuildingInfoPanelEl.classList.add('visible');
-        setupInvestigationButtonListener(); // Set up listener after adding the button
+        setupInvestigationButtonListener(); 
+        setupPaintButtonListener(); 
     } else {
         selectedBuildingInfoPanelEl.innerHTML = '<p>Select a building to see details.</p>';
         selectedBuildingInfoPanelEl.classList.remove('visible');
     }
 }
 
-export { updateHUD, setupIcons, updateSelectedBuildingInfo, INVESTIGATION_COST }; // Export cost if needed elsewhere
+export { updateHUD, setupIcons, updateSelectedBuildingInfo, INVESTIGATION_COST, PAINT_COST }; 
