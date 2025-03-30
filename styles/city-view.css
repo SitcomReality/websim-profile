@@ -55,6 +55,8 @@
     --building-width: 180px;
     --building-depth: 50px; 
     --building-height: calc(var(--base-height) * var(--building-height-factor));
+    --gradient-top: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.05));
+    --gradient-left: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.08));
 
     position: relative;
     width: var(--building-width);
@@ -109,7 +111,7 @@
     width: var(--building-width);
     height: var(--building-depth); 
     transform: translateY(calc(var(--building-depth) / -2)) rotateX(90deg);
-    background-color: color-mix(in srgb, var(--board-space-bg) 80%, white); 
+    background-image: var(--gradient-top);
 }
 
 /* Left Face */
@@ -117,7 +119,7 @@
     width: var(--building-depth); 
     height: var(--building-height);
     transform: translateX(calc(var(--building-depth) / -2)) rotateY(-90deg);
-    background-color: color-mix(in srgb, var(--board-space-bg) 70%, black); 
+    background-image: var(--gradient-left);
 }
 
 
