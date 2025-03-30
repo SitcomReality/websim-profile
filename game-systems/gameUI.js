@@ -20,7 +20,6 @@ const paintIconEl = document.querySelector('#stat-paint .icon');
 const limbsIconEl = document.querySelector('#stat-limbs .icon');
 const inertiaIconEl = document.querySelector('#stat-inertia .icon');
 
-
 function updateHUD(playerState) {
     console.log("Updating HUD with state:", playerState);
     if (scoreEl) scoreEl.textContent = playerState.score ?? 0;
@@ -43,9 +42,5 @@ function setupIcons() {
     if (limbsIconEl) limbsIconEl.innerHTML = getIcon('limbs');
     if (inertiaIconEl) inertiaIconEl.innerHTML = getIcon('existentialInertia');
 }
-
-
-// Expose the updateHUD function globally for now (can be improved with event system)
-window.updateGameHUD = updateHUD;
 
 export { updateHUD, setupIcons };

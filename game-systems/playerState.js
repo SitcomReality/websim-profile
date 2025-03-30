@@ -1,4 +1,4 @@
-import { updateGameHUD } from './gameUI.js'; // Assuming gameUI is already imported or needed elsewhere
+import { updateHUD } from './gameUI.js'; // Correct the import name
 
 const initialState = {
     score: 0,
@@ -38,9 +38,8 @@ function updatePlayerState(newState) {
     const changedKeys = Object.keys(newState).filter(key => previousState[key] !== currentState[key]);
     const hudStats = ['score', 'hp', 'coins', 'gems', 'grenades', 'paint', 'limbs', 'existentialInertia'];
     if (changedKeys.some(key => hudStats.includes(key))) {
-        if (window.updateGameHUD) {
-             window.updateGameHUD(currentState);
-        }
+        // Use the imported function directly instead of the global window property
+        updateHUD(currentState);
     }
 
     // Notify City View if selected building changed
