@@ -61,7 +61,7 @@ function updateBuildingSelectionHighlight(selectedId) {
 // Expose the highlight function globally for playerState to call
 window.updateBuildingSelectionHighlight = updateBuildingSelectionHighlight;
 
-function displayCityScape(projectsData) {
+async function displayCityScape(projectsData) {
     if (!cityScapeEl) {
         console.error("City scape element not found!");
         return;
@@ -110,6 +110,7 @@ function displayCityScape(projectsData) {
     // This requires playerState to be initialized before displayCityScape runs
     // (Which it should be based on current initProfile logic)
     try {
+        // Now 'await' is valid here because the function is async
         const { getPlayerState } = await import('./playerState.js');
         const initialState = getPlayerState();
         if (initialState.selectedBuildingId) {
