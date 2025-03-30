@@ -1,5 +1,5 @@
 import { changeHp } from './playerState.js'; // Add import for changeHp
-import { triggerVisualEffect } from '../ui.js'; // Import visual effect trigger
+import { triggerVisualEffect, showNotification } from '../ui.js'; // Import visual effect trigger & notification
 
 const CYCLE_DURATION = 30000; // 30 seconds for a full day-night cycle
 const MAX_OPACITY = 0.4; // How dark the overlay gets at night
@@ -28,7 +28,7 @@ function checkForRandomEvents() {
         console.log("Reality Tremor triggered!");
         changeHp(HP_LOSS_AMOUNT);
         triggerVisualEffect('screenShake'); // Use the imported function
-        // Consider adding a small notification message later
+        showNotification(`Reality Tremor! ${HP_LOSS_AMOUNT} HP`); // Show notification
     }
 }
 

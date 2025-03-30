@@ -32,7 +32,7 @@
 }
 
 #player-stats-container .icon {
-    display: inline2;
+    display: inline-block;
     width: 18px; /* Default, adjusted in responsive */
     height: 18px;
 }
@@ -47,4 +47,51 @@
     font-weight: bold;
     min-width: 20px; /* Default, adjusted in responsive */
     text-align: right;
+}
+
+/* --- Notification Area Styles --- */
+#notification-area {
+    position: fixed;
+    bottom: 70px; /* Position above the HUD */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(231, 76, 60, 0.85); /* Reddish color for alerts */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 101; /* Above HUD */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0s linear 0.5s;
+    font-size: 0.9em;
+    text-align: center;
+    pointer-events: none; /* Don't block clicks */
+    max-width: 90%;
+}
+
+#notification-area.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#notification-area.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out 2s, visibility 0s linear 2.5s; /* Start fade after 2s */
+}
+
+/* Responsive adjustments for notification */
+@media (max-width: 768px) {
+    #notification-area {
+        bottom: 85px; /* Adjust based on responsive HUD height */
+        font-size: 0.85em;
+    }
+}
+@media (max-width: 480px) {
+     #notification-area {
+        bottom: 65px; /* Adjust based on responsive HUD height */
+        font-size: 0.8em;
+        padding: 8px 15px;
+    }
 }

@@ -6,24 +6,19 @@
  *       while improving code modularity for future expansion.
  *
  * Date: 2024-07-26
- * Updated: 2024-07-31 (Phase 5.9 Complete)
+ * Updated: 2024-07-31 (Phase 5.10 Complete)
  */
 
-// --- Current State (Post-Phase 5.9 - Random HP Loss Event) ---
-// 1. `simulation.js`:
-//    - Added `EVENT_CHECK_INTERVAL`, `REALITY_TREMOR_CHANCE`, `HP_LOSS_AMOUNT`.
-//    - Added `checkForRandomEvents` function triggered by `setInterval` in `startRandomEvents`.
-//    - `checkForRandomEvents` checks probability, calls `changeHp` (from `playerState`), and calls `triggerVisualEffect('screenShake')` (from `ui.js`).
-//    - Added `startRandomEvents` and `stopRandomEvents` functions.
-// 2. `gameManager.js`:
-//    - Imports `startRandomEvents` from `simulation.js`.
-//    - Calls `startRandomEvents()` during `initGame()`.
+// --- Current State (Post-Phase 5.10 - HP Loss Notification) ---
+// 1. `index.html`: Added `<div id="notification-area">`.
+// 2. `styles/game-hud.css`: Added styles for `#notification-area`, including visibility, fade-out transitions, and positioning. Added responsive adjustments.
 // 3. `ui.js`:
-//    - Added `triggerVisualEffect` function to add/remove CSS classes (like `screen-shake`) to the body element. Exported this function.
-// 4. `styles/base.css`:
-//    - Added `@keyframes screenShake`.
-//    - Added `.screen-shake` class to apply the animation.
-// 5. `playerState.js`: No changes needed for this step (`changeHp` already existed and was exported).
+//    - Added `notificationAreaEl`.
+//    - Created and exported `showNotification(message, duration)` function to display messages in the notification area with a timed fade-out.
+// 4. `simulation.js`:
+//    - Imported `showNotification` from `ui.js`.
+//    - Called `showNotification("Reality Tremor! -2 HP")` within `checkForRandomEvents` when the tremor occurs.
+// 5. `dev-notes.js`: Updated to reflect completion.
 
 // --- Implementation Progress ---
 // Phase 1: Foundational Renaming & Restructuring (Completed)
@@ -39,25 +34,24 @@
 //    5.6: Refine Investigation Feedback (Deferred)
 //    5.7: Building Actions - "Paint" (Completed)
 //    5.8: Building Actions - "Sabotage" (Completed)
-//    5.9: Integrate Player HP - Random Events (Completed - Basic implementation)
+//    5.9: Integrate Player HP - Random Events (Completed)
+//    5.10: Refine HP Loss Feedback (Completed - Visual Notification Added)
 
 // --- Next Steps ---
 
 // **Phase 5 Continued: Interactivity & Simulation**
-//    *Objective: Enhance feedback and potentially add more complex events.*
-//    5.10 **Refine HP Loss Feedback:**
-//         - *Current:* Only screen shake.
-//         - *Proposal:* Add a small, temporary notification message on screen when HP is lost (e.g., "Reality Tremor! -2 HP").
-//         - *Action:*
-//             a. Create a dedicated notification area in `index.html`.
-//             b. Style the notification area in CSS (e.g., `styles/game-hud.css` or `styles/base.css`).
-//             c. Modify `ui.js` to add a `showNotification(message)` function that adds text to the area and fades it out after a few seconds.
-//             d. Call `showNotification("Reality Tremor! -2 HP")` from `simulation.js` when the event triggers.
-//    5.11 **Building Stats (Conceptual):**
+//    *Objective: Enhance game mechanics and depth.*
+//    5.11 **Building Stats (Conceptual - Deferred):**
 //         - *Current:* Buildings only have display stats.
 //         - *Proposal:* Give buildings internal stats (e.g., "Integrity" or "HP") that actions like "Sabotage" could affect. "Upgrade" action could increase them.
-//         - *Action:* Defer until core player loop and feedback are more refined.
+//         - *Action:* Defer until core player loop and feedback are more refined. Consider if this adds sufficient value or complexity.
 
-// **Focus for next step:** Implement the visual notification message for HP loss (Phase 5.10). Update `dev-notes.js`.
+// **Phase 6: Core Game Loop & Progression (Conceptual)**
+//    *Objective: Define how the player progresses and interacts long-term.*
+//    6.1 **Objective System:** Introduce simple goals (e.g., "Paint 5 buildings", "Investigate 3 unique buildings", "Survive 5 reality tremors").
+//    6.2 **Resource Generation/Collection:** Define how players earn more Coins, Paint, Grenades, etc. (e.g., passive income, clicking elements, completing objectives).
+//    6.3 **"Winning" / "Losing":** Define conditions for game end states (e.g., reaching a score threshold, HP reaching zero).
 
-console.log("Developer notes loaded. Phase 5.9 Random HP Loss Event implemented. Ready for Phase 5.10.");
+// **Focus for next step:** None defined in the notes currently. The next logical step might be to think about Phase 6, perhaps starting with resource generation (6.2) or a simple objective (6.1) to give the player more to do. Or revisit deferred items like 5.6 (Refine Investigation Feedback) or 5.11 (Building Stats).
+
+console.log("Developer notes loaded. Phase 5.10 HP Loss Notification implemented. Ready for next phase planning.");

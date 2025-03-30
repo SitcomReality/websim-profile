@@ -13,6 +13,8 @@ const viewsCountEl = document.getElementById('views-count');
 const aiPromptEl = document.getElementById('ai-prompt');
 const aiResponseEl = document.getElementById('ai-response');
 const refreshAiButtonEl = document.getElementById('refresh-ai-button');
+// Add Notification Area Element
+const notificationAreaEl = document.getElementById('notification-area');
 
 function setAiResponse(content) {
     if (!aiResponseEl) return;
@@ -49,6 +51,35 @@ function triggerVisualEffect(effectClass, duration = 500) {
     }, duration);
 }
 
+// Function to show temporary notifications
+function showNotification(message, duration = 3000) { // Default 3 seconds visibility
+    if (!notificationAreaEl) {
+        console.warn("Notification area element not found.");
+        return;
+    }
+
+    notificationAreaEl.textContent = message;
+    notificationAreaEl.classList.add('visible');
+    notificationAreaEl.classList.remove('fade-out'); // Ensure fade-out isn't stuck
+
+    // Clear any existing timeouts to handle rapid notifications
+    if (notificationAreaEl.fadeTimeout) clearTimeout(notificationAreaEl.fadeTimeout);
+    if (notificationAreaEl.clearTimeout) clearTimeout(notificationAreaEl.clearTimeout);
+
+    // Set timeout to start fading out
+    // Fade duration is 0.5s, starts after (duration - 500ms)
+    const fadeStartDelay = Math.max(0, duration - 500);
+    notificationAreaEl.fadeTimeout = setTimeout(() => {
+        notificationAreaEl.classList.add('fade-out');
+    }, fadeStartDelay);
+
+    // Set timeout to clear content and hide completely after fade finishes
+    notificationAreaEl.clearTimeout = setTimeout(() => {
+        notificationAreaEl.textContent = '';
+        notificationAreaEl.classList.remove('visible');
+        notificationAreaEl.classList.remove('fade-out');
+    }, duration);
+}
 
 document.addEventListener('DOMContentLoaded', setupRefreshAiButton);
 
@@ -65,5 +96,6 @@ export {
     refreshAiButtonEl,
     setAiResponse,
     setupRefreshAiButton,
-    triggerVisualEffect 
+    triggerVisualEffect,
+    showNotification // Export the new function
 };
