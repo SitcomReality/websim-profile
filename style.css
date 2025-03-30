@@ -9,6 +9,10 @@
     --text-color: #f8f8f8;
     --card-bg: rgba(30, 30, 30, 0.8);
     --card-shadow: 0 0 10px 30px rgba(255, 255, 255, 0.03);
+    --hud-bg: rgba(10, 10, 15, 0.85);
+    --hud-border: rgba(100, 100, 120, 0.5);
+    --hud-text-color: #e0e0e0;
+    --hud-icon-color: var(--secondary-color);
 }
 
 body {
@@ -17,8 +21,9 @@ body {
     color: var(--text-color);
     background-color: #1a1d20; /* Fallback color */
     background-image: linear-gradient(to bottom, #110020 0%, #000000 100%);
-    overflow-x: hidden; 
-    position: relative; 
+    overflow-x: hidden;
+    position: relative;
+    padding-bottom: 60px; /* Add padding to prevent HUD overlap */
 }
 
 #background-canvas {
@@ -27,17 +32,17 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; 
+    z-index: -1;
 }
 
 #profile-container {
     max-width: 1200px;
     margin: 40px auto;
     padding: 20px;
-    position: relative; 
+    position: relative;
     z-index: 1;
-    background: rgba(20, 20, 20, 0.6); 
-    backdrop-filter: blur(5px); 
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(5px);
     border-radius: 15px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
@@ -115,7 +120,7 @@ body {
 #user-info p {
     margin: 0 0 15px 0;
     font-size: 1.1em;
-    color: #576574;
+    color: #576574; /* Consider changing this color */
 }
 
 #stats span {
@@ -212,7 +217,7 @@ body {
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    position: relative; 
+    position: relative;
 }
 
 .project-card:hover {
@@ -267,7 +272,7 @@ body {
 
 .project-description {
     font-size: 0.95em;
-    color: #576574;
+    color: #576574; /* Consider changing this color */
     margin-bottom: 15px;
     line-height: 1.5;
     display: -webkit-box;
@@ -282,8 +287,8 @@ body {
     display: flex;
     justify-content: space-between;
     font-size: 0.9em;
-    color: #7f8fa6;
-    border-top: 1px solid #eee;
+    color: #7f8fa6; /* Consider changing this color */
+    border-top: 1px solid #333; /* Darker border */
     padding-top: 10px;
     margin-top: auto; 
 }
@@ -300,7 +305,79 @@ body {
     fill: currentColor;
 }
 
+/* Game HUD Styles */
+#game-hud {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--hud-bg);
+    border-top: 1px solid var(--hud-border);
+    padding: 5px 20px;
+    box-sizing: border-box;
+    z-index: 100;
+    backdrop-filter: blur(3px);
+}
+
+#player-stats-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    color: var(--hud-text-color);
+    font-size: 0.9em;
+}
+
+#player-stats-container span[id^="stat-"] { /* Target only stat spans */
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+#player-stats-container .icon {
+    display: inline-block;
+    width: 18px; /* Slightly larger icons */
+    height: 18px;
+}
+
+#player-stats-container .icon svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--hud-icon-color); /* Use CSS variable for icon color */
+}
+
+#player-stats-container .value {
+    font-weight: bold;
+    min-width: 20px; /* Ensure space for numbers */
+    text-align: right;
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 900px) {
+    #player-stats-container {
+        gap: 10px;
+        justify-content: flex-start; /* Align left on smaller screens */
+        padding: 5px 10px; /* Adjust padding */
+    }
+     #player-stats-container span[id^="stat-"] {
+        font-size: 0.85em;
+        padding: 2px 6px;
+    }
+    #player-stats-container .icon {
+        width: 16px;
+        height: 16px;
+    }
+}
+
 @media (max-width: 768px) {
+    body {
+        padding-bottom: 80px; /* More space for potentially wrapped HUD */
+    }
     #profile-header {
         flex-direction: column;
         align-items: flex-start;
@@ -342,6 +419,16 @@ body {
     #user-info h1 {
         font-size: 2em;
     }
+
+    #game-hud {
+        padding: 5px 10px; /* Less padding on mobile */
+    }
+
+    #player-stats-container {
+       font-size: 0.8em;
+       justify-content: space-around; /* Try to space out better */
+    }
+
 }
 
 @media (max-width: 480px) {
@@ -351,7 +438,7 @@ body {
     }
 
     #projects-grid {
-        grid-template-columns: 1fr; 
+        grid-template-columns: 1fr;
     }
 
     #user-info h1 {
@@ -363,6 +450,24 @@ body {
     }
 
     .project-card {
-        margin-bottom: 20px; 
+        margin-bottom: 20px;
+    }
+
+    #game-hud {
+        padding: 3px 5px;
+    }
+    #player-stats-container {
+        gap: 5px;
+        font-size: 0.75em; /* Even smaller */
+    }
+    #player-stats-container span[id^="stat-"] {
+        padding: 2px 4px;
+    }
+    #player-stats-container .icon {
+        width: 14px;
+        height: 14px;
+    }
+    #player-stats-container .value {
+         min-width: 15px;
     }
 }

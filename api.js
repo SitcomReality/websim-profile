@@ -8,7 +8,7 @@ import {
     viewsCountEl,
     projectsGridEl,
     displayProjects,
-    aiPromptEl, 
+    aiPromptEl,
     aiResponseEl,
     setAiResponse,
     setupRefreshAiButton
@@ -69,105 +69,153 @@ async function fetchUserProfile(username) {
         const response = await fetch(`/api/v1/users/${username}`, {
             signal: controller.signal
         });
-        clearTimeout(timer); 
-        if (response.status === 408 || response.statusText === 'AbortError') {
-           throw new Error('API request timed out');
+        clearTimeout(timer);
+        if (response.status === 408 || controller.signal.aborted) {
+           throw new Error('API request timed out or aborted');
         }
-        if (response.status >= 400) throw new Error(`Status: ${response.status}`);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+
         const { user } = await response.json();
         if (!user) throw new Error('no user data returned');
         return user;
     } catch (error) {
         logError(error);
-        throw error;
+        throw new Error(`Failed to fetch user profile: ${error.message}`);
     }
 }
 
 async function fetchUserStats(userIdOrUsername) {
     try {
-        const response = await fetch(`/api/v1/users/${userIdOrUsername}/stats`);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), API_TIMEOUT);
+        const response = await fetch(`/api/v1/users/${userIdOrUsername}/stats`, {
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (response.status === 408 || controller.signal.aborted) {
+           throw new Error('API request timed out or aborted');
+        }
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        likesCountEl.textContent = data.stats.total_likes || 0;
-        viewsCountEl.textContent = data.stats.total_views || 0;
+        if (likesCountEl) likesCountEl.textContent = data.stats.total_likes || 0;
+        if (viewsCountEl) viewsCountEl.textContent = data.stats.total_views || 0;
     } catch (err) {
-        console.error('Uncaught error in fetchStats:', {
-            error: err.message,
-            username: PROFILE_USERNAME,
-            timestamp: new Date().toISOString()
-        });
+        logError(err);
+        if (likesCountEl) likesCountEl.textContent = 'N/A';
+        if (viewsCountEl) viewsCountEl.textContent = 'N/A';
+        throw new Error(`Failed to fetch user stats: ${err.message}`);
     }
 }
 
 async function fetchFollowCounts(userIdOrUsername) {
     try {
-        const followersResponse = await fetch(`/api/v1/users/${userIdOrUsername}/followers?count=true`);
+        const followersController = new AbortController();
+        const followersTimer = setTimeout(() => followersController.abort(), API_TIMEOUT);
+        const followersResponse = await fetch(`/api/v1/users/${userIdOrUsername}/followers?count=true`, {
+             signal: followersController.signal
+        });
+        clearTimeout(followersTimer);
+        if (followersResponse.status === 408 || followersController.signal.aborted) {
+           throw new Error('Followers API request timed out or aborted');
+        }
         if (!followersResponse.ok) throw new Error(`Followers fetch error! status: ${followersResponse.status}`);
         const followersData = await followersResponse.json();
-        followersCountEl.textContent = followersData.followers.meta.count || 0;
+        if (followersCountEl) followersCountEl.textContent = followersData.followers.meta.count || 0;
 
-        const followingResponse = await fetch(`/api/v1/users/${userIdOrUsername}/following?count=true`);
+        const followingController = new AbortController();
+        const followingTimer = setTimeout(() => followingController.abort(), API_TIMEOUT);
+        const followingResponse = await fetch(`/api/v1/users/${userIdOrUsername}/following?count=true`, {
+             signal: followingController.signal
+        });
+        clearTimeout(followingTimer);
+         if (followingResponse.status === 408 || followingController.signal.aborted) {
+           throw new Error('Following API request timed out or aborted');
+        }
         if (!followingResponse.ok) throw new Error(`Following fetch error! status: ${followingResponse.status}`);
         const followingData = await followingResponse.json();
-        followingCountEl.textContent = followingData.following.meta.count || 0;
+        if (followingCountEl) followingCountEl.textContent = followingData.following.meta.count || 0;
+
     } catch (error) {
-        console.error('Error fetching follow counts:', error);
-        followersCountEl.textContent = 'N/A';
-        followingCountEl.textContent = 'N/A';
+        logError(error);
+        if (followersCountEl) followersCountEl.textContent = 'N/A';
+        if (followingCountEl) followingCountEl.textContent = 'N/A';
+        throw new Error(`Failed to fetch follow counts: ${error.message}`);
     }
 }
 
 async function fetchUserProjects(username) {
     try {
-        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`); 
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), API_TIMEOUT + 2000);
+        const response = await fetch(`/api/v1/users/${username}/projects?posted=true&first=100`, {
+            signal: controller.signal
+        });
+        clearTimeout(timer);
+         if (response.status === 408 || controller.signal.aborted) {
+           throw new Error('Projects API request timed out or aborted');
+        }
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         displayProjects(data.projects.data);
     } catch (error) {
-        console.error('Error fetching user projects:', error);
-        projectsGridEl.innerHTML = '<p>Error loading projects.</p>';
+        logError(error);
+        if (projectsGridEl) projectsGridEl.innerHTML = '<p>Error loading projects.</p>';
+        throw new Error(`Failed to fetch user projects: ${error.message}`);
     }
 }
 
 async function initProfile() {
     try {
         console.log('Initializing profile...');
+        if (!usernameEl || !descriptionEl) {
+           throw new Error("Core profile UI elements not found.");
+        }
+        usernameEl.textContent = 'Loading...';
+
         const user = await fetchUserProfile(PROFILE_USERNAME);
         usernameEl.textContent = user.username || 'Anonymous';
         descriptionEl.textContent = user.description || 'Face the farce.';
 
-        await Promise.all([
+        await Promise.allSettled([
             fetchUserStats(user.id || PROFILE_USERNAME),
             fetchFollowCounts(user.username || PROFILE_USERNAME),
             fetchUserProjects(user.username || PROFILE_USERNAME),
-            generateAiText(), 
-            setupRefreshAiButton()
+            generateAiText()
         ]);
 
-    } catch (error) {
-        console.error('Profile initialization error', error);
-        if (!error.message.includes('API request') && !error.message.includes('HTTP error') && !error.message.includes('Status:')) {
-            logError(error);
-        }
-        if (usernameEl.textContent === 'Loading...') {
-            usernameEl.textContent = 'Error';
-            descriptionEl.textContent = 'Could not load profile data.';
-        }
-        if (aiResponseEl && aiResponseEl.textContent === 'Thinking...') {
-            aiPromptEl.textContent = 'AI Unavailable';
-            aiResponseEl.textContent = 'Could not connect.';
-        }
+        console.log('Profile initialized successfully.');
 
-    } finally {
-        console.info('Profile initialization attempted');
+    } catch (error) {
+        console.error('Profile initialization failed:', error.message);
+        logError(error);
+
+        if (usernameEl && usernameEl.textContent === 'Loading...') {
+            usernameEl.textContent = 'Error Loading Profile';
+        }
+         if (descriptionEl) descriptionEl.textContent = 'Could not load profile data. Please try refreshing.';
+         if (followersCountEl) followersCountEl.textContent = 'N/A';
+         if (followingCountEl) followingCountEl.textContent = 'N/A';
+         if (likesCountEl) likesCountEl.textContent = 'N/A';
+         if (viewsCountEl) viewsCountEl.textContent = 'N/A';
+         if (projectsGridEl && projectsGridEl.innerHTML.includes('Loading projects...')) {
+             projectsGridEl.innerHTML = '<p>Failed to load projects.</p>';
+         }
+         if (aiResponseEl && aiResponseEl.textContent === 'Thinking...') {
+             if (aiPromptEl) aiPromptEl.textContent = 'AI Unavailable';
+             aiResponseEl.textContent = 'Could not connect.';
+         }
+         throw error;
     }
 }
 
 async function logError(error) {
+    const timestamp = new Date().toISOString();
     if (error instanceof Error) {
-        console.error(`[${new Date().toISOString()}] ${error.message}`);
+        console.error(`[${timestamp}] Error: ${error.message}\nStack: ${error.stack}`);
+    } else if (typeof error === 'string') {
+        console.error(`[${timestamp}] Error: ${error}`);
     } else {
-        console.error(...arguments);
+        console.error(`[${timestamp}] Unknown Error:`, error);
     }
 }
 

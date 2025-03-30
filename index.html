@@ -33,9 +33,7 @@
             <div id="ai-text-container">
                 <button id="refresh-ai-button" aria-label="Generate new AI text">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M12 12 A 10 10 0 0 0 12 22 A10 10 0 0012 2 A10 10 0 0 0 12 22" stroke="none" />
-                        <path d="M12 8v4l3 3"/>
-                        <path d="M17.56,12A10,10,10,0,1110,12A10,10,10,0,1,17.56,12zm13.5,34h6v6H3zM.66,5.12L12,12;h8.42.66,12z5.47V3.3,h3h1.41l4.924.247.66z "/>                                                                                                                                                                                                          
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
                     </svg>
                 </button>
                 <p id="ai-prompt">Generating prompt...</p>
@@ -53,10 +51,35 @@
 
     <div id="background-canvas"></div>
 
+    <!-- Game HUD -->
+    <footer id="game-hud">
+        <div id="player-stats-container">
+            <span id="stat-score" title="Score"><span class="icon"></span><span class="value">0</span></span>
+            <span id="stat-hp" title="Health Points"><span class="icon"></span><span class="value">100</span></span>
+            <span id="stat-coins" title="Coins"><span class="icon"></span><span class="value">0</span></span>
+            <span id="stat-gems" title="Gems"><span class="icon"></span><span class="value">0</span></span>
+            <span id="stat-grenades" title="Grenades"><span class="icon"></span><span class="value">3</span></span>
+            <span id="stat-paint" title="Paint (mL)"><span class="icon"></span><span class="value">1000</span></span>
+            <span id="stat-limbs" title="Number of Limbs"><span class="icon"></span><span class="value">4</span></span>
+            <span id="stat-inertia" title="Existential Inertia"><span class="icon"></span><span class="value">50</span></span>
+        </div>
+        <!-- Other HUD sections can go here later -->
+    </footer>
+
     <script type="module" src="script.js"></script>
     <script type="module">
         import { initProfile } from './api.js';
-        document.addEventListener('DOMContentLoaded', function() { initProfile().catch(console.error); });
+        import { initGame } from './game-systems/gameManager.js'; // Import game init
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await initProfile(); // Initialize profile first
+                initGame();         // Then initialize game systems
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                // Handle potential init failures (e.g., display error messages)
+            }
+        });
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
