@@ -1,7 +1,17 @@
-# Profile Projects API Documentation
+# SitcomReality Project API Documentation
 
-## Overview
-The profile page retrieves user projects via the Websim API to display them as buildings in the city simulation.
+This document describes the API calls used to retrieve projects for the SitcomReality profile page.
 
-## Endpoint
+## Main Projects Endpoint
+
+**URL:** `/api/v1/users/{username}/projects`
+
+**Method:** `GET`
+
+**Parameters:**
+- `posted=true` - Filters to only show posted projects (excludes drafts)
+- `first=100` - Limits results to first 100 projects
+- `sort_by=updated_at` - Sorts projects by most recently updated
+
+**Example Request:**
 
